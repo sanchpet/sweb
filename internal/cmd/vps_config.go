@@ -37,6 +37,11 @@ var vpsConfigCmd = &cobra.Command{
 			for _, o := range cfg.SelectOS {
 				fmt.Fprintf(w, "%s\t%s\t%s\n", o.OSDistributionID, o.Name, o.Version)
 			}
+			fmt.Fprintln(w, "\nCATEGORIES (for the configurator --category)")
+			fmt.Fprintln(w, "ID\tSLUG\tNAME")
+			for _, ct := range cfg.Categories {
+				fmt.Fprintf(w, "%s\t%s\t%s\n", ct.ID, ct.Slug, ct.Name)
+			}
 		})
 	},
 }

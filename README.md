@@ -67,6 +67,10 @@ sweb vps create --plan 4 --distributive 32 --datacenter 1 \
 sweb vps create --plan 4 --distributive 32 --datacenter 1 \
   --alias hub --ssh-key "$(cat ~/.ssh/id_ed25519.pub)"
 
+#    Or build a custom spec with the configurator (ram/disk in GB; NVMe default).
+sweb vps create --cpu 2 --ram 6 --disk 15 --distributive 113 --datacenter 1 \
+  --alias infra-hub --ssh-key "$(cat ~/.ssh/id_ed25519.pub)" --dry-run
+
 # 5. Delete a VPS by its BILLING_ID (from `vps list`); asks to confirm.
 sweb vps delete login_vps_6
 sweb vps delete login_vps_6 --yes   # skip the confirmation prompt
