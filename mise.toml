@@ -2,6 +2,7 @@
 go = "1.26"
 golangci-lint = "2"
 pre-commit = "latest"
+goreleaser = "2"
 
 [tasks.build]
 description = "Build the sweb binary"
@@ -22,3 +23,7 @@ run = "gofmt -w ."
 [tasks.ci]
 description = "Everything CI runs"
 depends = ["lint", "test", "build"]
+
+[tasks.release-snapshot]
+description = "Build a local release snapshot (no publish)"
+run = "goreleaser release --snapshot --clean"
