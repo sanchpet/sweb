@@ -9,50 +9,78 @@ import (
 	"github.com/zalando/go-keyring"
 )
 
+const keyringService = "sweb"
+
+// Keyring accounts / config-file fields. SpaceWeb tokens are short-lived and the
+// API has no refresh-token flow, so we store login+password (not just the token)
+// to let the SDK transparently re-authenticate.
 const (
-	keyringService = "sweb"
-	keyringUser    = "default"
+	keyLogin    = "login"
+	keyPassword = "password"
+	keyToken    = "token"
 )
 
 func tokenFilePath() string { return filepath.Join(configDir(), "config.yaml") }
 
-// storeToken persists the token, preferring the OS keyring (macOS Keychain,
-// Linux Secret Service, Windows Credential Manager). It falls back to a 0600
-// config file when the keyring is unavailable (e.g. headless Linux) or when
-// insecure is true. It returns a human-readable location and whether it fell
-// back — the caller surfaces that explicitly, never a silent downgrade.
-func storeToken(token string, insecure bool) (location string, fellBack bool, err error) {
+// storeCredentials persists login, password and the initial token, preferring
+// the OS keyring (macOS Keychain, Linux Secret Service, Windows Credential
+// Manager). Falls back to a 0600 file when the keyring is unavailable or
+// insecure is true. Returns where it landed and whether it fell back, so the
+// caller can surface the fallback explicitly (never silently).
+func storeCredentials(login, password, token string, insecure bool) (location string, fellBack bool, err error) {
 	if !insecure {
-		kerr := keyring.Set(keyringService, keyringUser, token)
-		if kerr == nil {
+		e1 := keyring.Set(keyringService, keyLogin, login)
+		e2 := keyring.Set(keyringService, keyPassword, password)
+		e3 := keyring.Set(keyringService, keyToken, token)
+		if e1 == nil && e2 == nil && e3 == nil {
 			return "OS keyring", false, nil
 		}
 		fellBack = true
-		location = fmt.Sprintf("keyring unavailable (%v) → ", kerr)
+		location = "keyring unavailable → "
 	}
 
 	dir := configDir()
 	if err = os.MkdirAll(dir, 0o700); err != nil {
 		return "", fellBack, err
 	}
-	path := tokenFilePath()
-	if err = os.WriteFile(path, []byte("token: "+token+"\n"), 0o600); err != nil {
+	if err = writeCredFile(login, password, token); err != nil {
 		return "", fellBack, err
 	}
-	return location + path + " (plaintext, 0600)", fellBack, nil
+	return location + tokenFilePath() + " (plaintext, 0600)", fellBack, nil
 }
 
-// resolveToken returns the API token by precedence:
-// --token flag → $SWEB_TOKEN → OS keyring → config file.
-func resolveToken() string {
-	if t, _ := rootCmd.PersistentFlags().GetString("token"); t != "" {
-		return t
+// saveToken updates only the cached token — used by the SDK's refresh callback
+// after a transparent re-authentication.
+func saveToken(token string) error {
+	if err := keyring.Set(keyringService, keyToken, token); err == nil {
+		return nil
 	}
-	if t := os.Getenv("SWEB_TOKEN"); t != "" {
-		return t
+	login, password, _ := loadCredentials()
+	if err := os.MkdirAll(configDir(), 0o700); err != nil {
+		return err
 	}
-	if t, err := keyring.Get(keyringService, keyringUser); err == nil && t != "" {
-		return t
+	return writeCredFile(login, password, token)
+}
+
+func writeCredFile(login, password, token string) error {
+	content := fmt.Sprintf("login: %s\npassword: %s\ntoken: %s\n", login, password, token)
+	return os.WriteFile(tokenFilePath(), []byte(content), 0o600)
+}
+
+// loadCredentials reads login/password/token from the keyring, falling back to
+// the config file for any field the keyring does not hold.
+func loadCredentials() (login, password, token string) {
+	login, _ = keyring.Get(keyringService, keyLogin)
+	password, _ = keyring.Get(keyringService, keyPassword)
+	token, _ = keyring.Get(keyringService, keyToken)
+	if login == "" {
+		login = viper.GetString(keyLogin)
 	}
-	return viper.GetString("token") // from the config file, if any
+	if password == "" {
+		password = viper.GetString(keyPassword)
+	}
+	if token == "" {
+		token = viper.GetString(keyToken)
+	}
+	return login, password, token
 }

@@ -75,11 +75,29 @@ func initConfig() {
 
 // client builds an authenticated SDK client from the resolved token.
 func client() (*sweb.Client, error) {
-	token := resolveToken()
-	if token == "" {
-		return nil, fmt.Errorf("no API token: run `sweb configure` or set SWEB_TOKEN")
+	// Explicit token (flag or env): used as-is, no auto-refresh.
+	if t, _ := rootCmd.PersistentFlags().GetString("token"); t != "" {
+		return sweb.New(sweb.WithToken(t)), nil
 	}
-	return sweb.New(sweb.WithToken(token)), nil
+	if t := os.Getenv("SWEB_TOKEN"); t != "" {
+		return sweb.New(sweb.WithToken(t)), nil
+	}
+
+	login, password, token := loadCredentials()
+	switch {
+	case login != "" && password != "":
+		// Cached token + credentials → the SDK refreshes transparently on
+		// expiry and we persist the new token via the callback.
+		return sweb.New(
+			sweb.WithToken(token),
+			sweb.WithCredentials(login, password),
+			sweb.WithOnTokenRefresh(func(t string) { _ = saveToken(t) }),
+		), nil
+	case token != "":
+		return sweb.New(sweb.WithToken(token)), nil
+	default:
+		return nil, fmt.Errorf("no credentials: run `sweb configure` or set SWEB_TOKEN")
+	}
 }
 
 // render prints data as JSON (-o json) or via the supplied table writer.

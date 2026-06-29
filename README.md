@@ -45,9 +45,11 @@ Releases are produced by [GoReleaser](https://goreleaser.com) on every `v*` tag
 ## Usage
 
 ```sh
-# 1. Authenticate (prompts for login/password, stores the token in the OS
-#    keyring — falls back to a 0600 file when none is available). Or set
-#    SWEB_TOKEN in the environment.
+# 1. Authenticate (prompts for login/password, stores both + the token in the OS
+#    keyring — falls back to a 0600 file when none is available). SpaceWeb tokens
+#    are short-lived with no refresh flow, so the password is kept (in the
+#    keyring) to re-auth transparently — you are not prompted again until it
+#    changes. Or set SWEB_TOKEN in the environment for a one-off token.
 sweb configure
 sweb configure --insecure-storage   # force the plaintext-file backend
 
@@ -70,7 +72,9 @@ sweb vps delete login_vps_6
 sweb vps delete login_vps_6 --yes   # skip the confirmation prompt
 ```
 
-Token resolution precedence: `--token` flag → `$SWEB_TOKEN` → OS keyring → config file.
+Auth precedence: `--token` flag → `$SWEB_TOKEN` (both one-off, no refresh) →
+stored credentials (auto-refreshing). The token is cached and silently renewed
+from the stored login+password when it expires.
 
 ## Shell completion
 
