@@ -11,8 +11,11 @@ config, and output. Keep it that way — no HTTP/JSON-RPC here.
 - `internal/cmd/` — one file per command: `configure`, `vps`, `vps_list`,
   `vps_create`, `vps_config`. `root.go` holds config wiring + the `client()` and
   `render()` helpers.
-- **Config:** Viper. Precedence `--token` flag → `$SWEB_TOKEN` → `~/.config/sweb/config.yaml`.
-  `configure` uses Charm **huh** to prompt and stores only the token (0600).
+- **Config / token:** `token.go` resolves the token by precedence `--token` flag →
+  `$SWEB_TOKEN` → OS keyring → config file. `configure` (Charm **huh** prompt) stores
+  the token in the OS keyring (`zalando/go-keyring`), falling back to a 0600 file —
+  the fallback is surfaced explicitly (never silent). Only the token is stored, never
+  the password. `-o table|json` for output. Non-token config via Viper.
 - **Output:** `-o table|json`. Tables use stdlib `text/tabwriter` (no extra dep).
 
 ## Build & test (mise-first)
@@ -31,6 +34,7 @@ pre-commit install && pre-commit run -a
 
 ## Security / opsec (BLOCKING)
 
-- **Never commit tokens or credentials.** `configure` writes the token only to
-  the user's `~/.config/sweb/`, never into the repo. `gitleaks` runs in pre-commit.
+- **Never commit tokens or credentials.** `configure` writes the token to the OS
+  keyring (or the user's `~/.config/sweb/`), never into the repo. `gitleaks` runs in
+  pre-commit.
 - `sweb vps create` mutates and bills — never invoke it in tests/CI.

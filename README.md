@@ -18,9 +18,11 @@ go install github.com/sanchpet/sweb@latest
 ## Usage
 
 ```sh
-# 1. Authenticate (prompts for login/password, stores a token in
-#    ~/.config/sweb/config.yaml). Or set SWEB_TOKEN in the environment.
+# 1. Authenticate (prompts for login/password, stores the token in the OS
+#    keyring — falls back to a 0600 file when none is available). Or set
+#    SWEB_TOKEN in the environment.
 sweb configure
+sweb configure --insecure-storage   # force the plaintext-file backend
 
 # 2. Inspect the catalog (plan / OS / datacenter IDs).
 sweb vps config
@@ -34,7 +36,7 @@ sweb vps create --plan 4 --distributive 32 --datacenter 1 \
   --alias hub --ssh-key "$(cat ~/.ssh/id_ed25519.pub)"
 ```
 
-Token resolution precedence: `--token` flag → `$SWEB_TOKEN` → config file.
+Token resolution precedence: `--token` flag → `$SWEB_TOKEN` → OS keyring → config file.
 
 ## Develop
 

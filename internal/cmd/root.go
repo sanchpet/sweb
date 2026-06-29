@@ -33,8 +33,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().String("config", "", "config file (default ~/.config/sweb/config.yaml)")
 	rootCmd.PersistentFlags().StringP("output", "o", "table", "output format: table|json")
-	rootCmd.PersistentFlags().String("token", "", "API token (overrides config and $SWEB_TOKEN)")
-	_ = viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
+	rootCmd.PersistentFlags().String("token", "", "API token (overrides keyring/config and $SWEB_TOKEN)")
 	_ = viper.BindPFlag("output", rootCmd.PersistentFlags().Lookup("output"))
 }
 
@@ -58,7 +57,7 @@ func initConfig() {
 
 // client builds an authenticated SDK client from the resolved token.
 func client() (*sweb.Client, error) {
-	token := viper.GetString("token")
+	token := resolveToken()
 	if token == "" {
 		return nil, fmt.Errorf("no API token: run `sweb configure` or set SWEB_TOKEN")
 	}
