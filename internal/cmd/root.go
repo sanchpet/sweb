@@ -52,6 +52,7 @@ func init() {
 	rootCmd.PersistentFlags().StringP("output", "o", "table", "output format: table|json")
 	rootCmd.PersistentFlags().String("token", "", "API token (overrides keyring/config and $SWEB_TOKEN)")
 	_ = viper.BindPFlag("output", rootCmd.PersistentFlags().Lookup("output"))
+	_ = rootCmd.RegisterFlagCompletionFunc("output", completeOutput)
 }
 
 func configDir() string {

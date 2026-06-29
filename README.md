@@ -65,6 +65,25 @@ sweb vps create --plan 4 --distributive 32 --datacenter 1 \
 
 Token resolution precedence: `--token` flag → `$SWEB_TOKEN` → OS keyring → config file.
 
+## Shell completion
+
+The `.deb` / `.rpm` packages install completions automatically (bash, zsh, fish).
+For `go install` or the prebuilt binary, generate and install them yourself:
+
+```sh
+# zsh
+sweb completion zsh > ~/.zsh/completions/_sweb   # a dir on your $fpath, then: autoload -Uz compinit && compinit
+
+# bash (needs bash-completion)
+sweb completion bash | sudo tee /etc/bash_completion.d/sweb >/dev/null
+
+# quick try in the current shell (any shell)
+source <(sweb completion zsh)   # or bash / fish
+```
+
+`vps create` completes `--plan`, `--datacenter` and `--distributive` with live
+values from your account catalog (requires a configured token).
+
 ## Develop
 
 ```sh
