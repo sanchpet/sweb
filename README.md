@@ -59,8 +59,15 @@ sweb vps list
 sweb vps list -o json
 
 # 4. Provision a VPS (mutates — bills your account).
+#    --dry-run prints the request without calling the API.
+sweb vps create --plan 4 --distributive 32 --datacenter 1 \
+  --alias hub --ssh-key "$(cat ~/.ssh/id_ed25519.pub)" --dry-run
 sweb vps create --plan 4 --distributive 32 --datacenter 1 \
   --alias hub --ssh-key "$(cat ~/.ssh/id_ed25519.pub)"
+
+# 5. Delete a VPS by its BILLING_ID (from `vps list`); asks to confirm.
+sweb vps delete login_vps_6
+sweb vps delete login_vps_6 --yes   # skip the confirmation prompt
 ```
 
 Token resolution precedence: `--token` flag → `$SWEB_TOKEN` → OS keyring → config file.

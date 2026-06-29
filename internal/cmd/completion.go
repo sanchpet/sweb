@@ -58,6 +58,27 @@ func completeDistributives(cmd *cobra.Command, _ []string, _ string) ([]string, 
 	return out, cobra.ShellCompDirectiveNoFileComp
 }
 
+// completeBillingIDs offers existing VPS billing IDs (for `vps delete`), each
+// labelled with the VPS name. Degrades to no suggestions on any failure.
+func completeBillingIDs(cmd *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
+	c, err := client()
+	if err != nil {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+	list, err := c.VPS.List(cmd.Context())
+	if err != nil {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+	var out []string
+	for _, v := range list {
+		if v.BillingID == "" {
+			continue
+		}
+		out = append(out, fmt.Sprintf("%s\t%s", v.BillingID, v.Name))
+	}
+	return out, cobra.ShellCompDirectiveNoFileComp
+}
+
 // completionConfig builds a client and fetches the catalog for a completion
 // callback, returning ok=false on any failure (no token, network, etc.) so the
 // shell falls back to no suggestions rather than an error.
