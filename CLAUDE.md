@@ -11,11 +11,14 @@ config, and output. Keep it that way — no HTTP/JSON-RPC here.
 - `internal/cmd/` — one file per command: `configure`, `vps`, `vps_list`,
   `vps_create`, `vps_config`. `root.go` holds config wiring + the `client()` and
   `render()` helpers.
-- **Config / token:** `token.go` resolves the token by precedence `--token` flag →
-  `$SWEB_TOKEN` → OS keyring → config file. `configure` (Charm **huh** prompt) stores
-  the token in the OS keyring (`zalando/go-keyring`), falling back to a 0600 file —
-  the fallback is surfaced explicitly (never silent). Only the token is stored, never
-  the password. `-o table|json` for output. Non-token config via Viper.
+- **Config / auth:** SpaceWeb tokens are short-lived with no refresh flow, so
+  `configure` (Charm **huh** prompt) stores **login + password + token** in the OS
+  keyring (`zalando/go-keyring`), falling back to a 0600 file — the fallback is
+  surfaced explicitly (never silent). `client()` (root.go) passes the cached token
+  plus credentials to the SDK (`WithCredentials` + `WithOnTokenRefresh`), which
+  re-auths transparently on expiry; the callback persists the new token via
+  `saveToken`. Precedence: `--token` flag / `$SWEB_TOKEN` (one-off, no refresh) →
+  stored credentials. `-o table|json` for output; non-auth config via Viper.
 - **Output:** `-o table|json`. Tables use stdlib `text/tabwriter` (no extra dep).
 
 ## Build & test (mise-first)

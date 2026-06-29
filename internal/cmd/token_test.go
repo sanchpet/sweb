@@ -6,30 +6,38 @@ import (
 	"github.com/zalando/go-keyring"
 )
 
-func TestStoreAndResolveViaKeyring(t *testing.T) {
+func TestStoreAndLoadCredentials(t *testing.T) {
 	keyring.MockInit() // in-memory backend, cross-platform
-	t.Setenv("SWEB_TOKEN", "")
 
-	loc, fellBack, err := storeToken("tok_keyring", false)
+	loc, fellBack, err := storeCredentials("user", "pass", "tok1", false)
 	if err != nil {
-		t.Fatalf("storeToken: %v", err)
+		t.Fatalf("storeCredentials: %v", err)
 	}
 	if fellBack {
 		t.Errorf("unexpected fallback to file: %s", loc)
 	}
-	if got := resolveToken(); got != "tok_keyring" {
-		t.Errorf("resolveToken = %q, want tok_keyring", got)
+
+	login, password, token := loadCredentials()
+	if login != "user" || password != "pass" || token != "tok1" {
+		t.Errorf("loadCredentials = %q/%q/%q, want user/pass/tok1", login, password, token)
 	}
 }
 
-func TestEnvOverridesKeyring(t *testing.T) {
+func TestSaveTokenUpdatesCachedToken(t *testing.T) {
 	keyring.MockInit()
-	if err := keyring.Set(keyringService, keyringUser, "tok_keyring"); err != nil {
-		t.Fatalf("seed keyring: %v", err)
+	if _, _, err := storeCredentials("user", "pass", "tok1", false); err != nil {
+		t.Fatalf("storeCredentials: %v", err)
 	}
-	t.Setenv("SWEB_TOKEN", "tok_env")
 
-	if got := resolveToken(); got != "tok_env" {
-		t.Errorf("resolveToken = %q, want tok_env (env must beat keyring)", got)
+	if err := saveToken("tok2"); err != nil {
+		t.Fatalf("saveToken: %v", err)
+	}
+
+	login, password, token := loadCredentials()
+	if token != "tok2" {
+		t.Errorf("token = %q, want tok2", token)
+	}
+	if login != "user" || password != "pass" {
+		t.Errorf("credentials not preserved: %q/%q", login, password)
 	}
 }

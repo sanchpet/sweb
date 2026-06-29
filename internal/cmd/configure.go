@@ -13,10 +13,14 @@ var configureInsecure bool
 var configureCmd = &cobra.Command{
 	Use:   "configure",
 	Short: "Authenticate and store an API token",
-	Long: `Prompt for your SpaceWeb login and password, exchange them for a personal
-access token, and store the token in the OS keyring (macOS Keychain, Linux
+	Long: `Prompt for your SpaceWeb login and password, exchange them for a token,
+and store login + password + token in the OS keyring (macOS Keychain, Linux
 Secret Service, Windows Credential Manager). Falls back to a 0600 config file
-when no keyring is available. Only the token is stored — never your password.`,
+when no keyring is available.
+
+SpaceWeb tokens are short-lived and the API has no refresh-token flow, so the
+password is stored (in the keyring) to re-authenticate transparently — you are
+not prompted again until your password changes.`,
 	RunE: func(cmd *cobra.Command, _ []string) error {
 		var login, password string
 		form := huh.NewForm(huh.NewGroup(
@@ -32,14 +36,14 @@ when no keyring is available. Only the token is stored — never your password.`
 			return err
 		}
 
-		where, fellBack, err := storeToken(token, configureInsecure)
+		where, fellBack, err := storeCredentials(login, password, token, configureInsecure)
 		if err != nil {
 			return err
 		}
 		if fellBack {
-			fmt.Fprintln(cmd.ErrOrStderr(), "warning: OS keyring unavailable — token written to a plaintext file")
+			fmt.Fprintln(cmd.ErrOrStderr(), "warning: OS keyring unavailable — credentials written to a plaintext file")
 		}
-		fmt.Fprintln(cmd.OutOrStdout(), "Token stored:", where)
+		fmt.Fprintln(cmd.OutOrStdout(), "Credentials stored:", where)
 		return nil
 	},
 }
