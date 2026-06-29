@@ -11,11 +11,12 @@ Fang).
 
 ## Install
 
-**[mise](https://mise.jdx.dev)** (installs the released binary via the `ubi` backend):
+**[mise](https://mise.jdx.dev)** (installs the released binary via the `github` backend,
+with SLSA provenance verification):
 
 ```sh
-mise use -g ubi:sanchpet/sweb        # latest release
-mise use -g ubi:sanchpet/sweb@0.1.0  # a specific version
+mise use -g github:sanchpet/sweb        # latest release
+mise use -g github:sanchpet/sweb@0.1.0  # a specific version
 ```
 
 **Go** (builds from source; needs a Go toolchain):
