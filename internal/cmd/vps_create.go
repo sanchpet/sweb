@@ -56,5 +56,11 @@ func init() {
 	f.String("alias", "", "human-readable name for the VPS")
 	f.String("ssh-key", "", "SSH public key to install")
 	f.Int("ip-count", 1, "number of IP addresses")
+
+	// Dynamic value completion from the live catalog (getAvailableConfig).
+	_ = vpsCreateCmd.RegisterFlagCompletionFunc("plan", completePlans)
+	_ = vpsCreateCmd.RegisterFlagCompletionFunc("datacenter", completeDatacenters)
+	_ = vpsCreateCmd.RegisterFlagCompletionFunc("distributive", completeDistributives)
+
 	vpsCmd.AddCommand(vpsCreateCmd)
 }
