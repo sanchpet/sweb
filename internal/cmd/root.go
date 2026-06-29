@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"text/tabwriter"
 
 	"github.com/charmbracelet/fang"
@@ -15,6 +16,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
+
+// version is injected at release time via -ldflags by GoReleaser. When empty
+// (go install / local build) Fang falls back to the module build info.
+var version string
 
 var rootCmd = &cobra.Command{
 	Use:          "sweb",
@@ -24,9 +29,21 @@ var rootCmd = &cobra.Command{
 
 // Execute runs the root command with Fang (styled help/errors/version).
 func Execute() {
-	if err := fang.Execute(context.Background(), rootCmd); err != nil {
+	if err := fang.Execute(context.Background(), rootCmd, fang.WithVersion(versionString())); err != nil {
 		os.Exit(1)
 	}
+}
+
+// versionString resolves the reported version: the GoReleaser-injected value,
+// else the module version from build info (go install), else "dev".
+func versionString() string {
+	if version != "" {
+		return version
+	}
+	if bi, ok := debug.ReadBuildInfo(); ok && bi.Main.Version != "" && bi.Main.Version != "(devel)" {
+		return bi.Main.Version
+	}
+	return "dev"
 }
 
 func init() {

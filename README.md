@@ -11,9 +11,35 @@ Fang).
 
 ## Install
 
+**[mise](https://mise.jdx.dev)** (installs the released binary via the `ubi` backend):
+
+```sh
+mise use -g ubi:sanchpet/sweb        # latest release
+mise use -g ubi:sanchpet/sweb@0.1.0  # a specific version
+```
+
+**Go** (builds from source; needs a Go toolchain):
+
 ```sh
 go install github.com/sanchpet/sweb@latest
 ```
+
+**Pre-built binary** — download the archive for your OS/arch from the
+[Releases](https://github.com/sanchpet/sweb/releases) page, verify it against
+`checksums.txt`, extract, and put `sweb` on your `PATH`.
+
+**Debian/Ubuntu** and **RHEL/Fedora** — grab the `.deb` / `.rpm` from the
+[Releases](https://github.com/sanchpet/sweb/releases) page:
+
+```sh
+sudo dpkg -i sweb_*_linux_amd64.deb   # Debian/Ubuntu
+sudo rpm -i  sweb_*_linux_amd64.rpm   # RHEL/Fedora
+```
+
+> Homebrew (`brew install`) is planned — it needs a dedicated tap repository.
+
+Releases are produced by [GoReleaser](https://goreleaser.com) on every `v*` tag
+(cross-platform binaries + checksums + deb/rpm).
 
 ## Usage
 
