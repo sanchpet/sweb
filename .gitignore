@@ -1,0 +1,13 @@
+# Binaries
+/dist/
+*.exe
+*.out
+sweb
+
+# Test / coverage
+*.test
+coverage.out
+
+# Local env
+.env
+*.local
