@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -73,7 +75,30 @@ API, so the target's disk must be >= the current one.`,
 		if err := c.VPS.ChangePlan(cmd.Context(), billingID, planID); err != nil {
 			return err
 		}
-		fmt.Fprintf(cmd.OutOrStdout(), "Changed plan of %s to %d (resize applying asynchronously)\n", billingID, planID)
+
+		if wait, _ := f.GetBool("wait"); !wait {
+			fmt.Fprintf(cmd.OutOrStdout(), "Changed plan of %s to %d (resize applying asynchronously; pass --wait to block)\n", billingID, planID)
+			return nil
+		}
+
+		// --wait: block until the node settles. A resize is a sequence of async
+		// actions (Modify → ExtIpAdd → …) with is_running staying 1, so we poll
+		// current_action via the SDK and print each phase.
+		ctx, cancel := context.WithTimeout(cmd.Context(), 15*time.Minute)
+		defer cancel()
+		fmt.Fprintf(cmd.ErrOrStderr(), "resize accepted; waiting for %s to settle…\n", billingID)
+		last := ""
+		node, err := c.VPS.WaitForIdle(ctx, billingID, 10*time.Second, func(action string) {
+			if action != "" && action != last {
+				fmt.Fprintf(cmd.ErrOrStderr(), "  → %s\n", action)
+				last = action
+			}
+		})
+		if err != nil {
+			return fmt.Errorf("waiting for resize to settle: %w", err)
+		}
+		fmt.Fprintf(cmd.OutOrStdout(), "Resized %s → %s (%dcpu / %dMB / %s)\n",
+			billingID, node.PlanName, int64(node.CPU), int64(node.RAM), node.Disk)
 		return nil
 	},
 }
@@ -84,6 +109,7 @@ func init() {
 	f.Int("ram", 0, "configurator: RAM in GB")
 	f.Int("disk", 0, "configurator: disk in GB")
 	f.Int("category", 0, "configurator: category id (default 1 = NVMe) — see `sweb vps config`")
+	f.Bool("wait", false, "block until the resize settles (poll current_action), printing each phase")
 	_ = vpsChangePlanCmd.RegisterFlagCompletionFunc("category", completeCategories)
 
 	vpsCmd.AddCommand(vpsChangePlanCmd)
