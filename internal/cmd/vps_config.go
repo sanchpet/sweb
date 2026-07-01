@@ -24,7 +24,7 @@ var vpsConfigCmd = &cobra.Command{
 			fmt.Fprintln(w, "PLANS")
 			fmt.Fprintln(w, "ID\tNAME\tCPU\tRAM\tDISK\tPRICE/mo\tSOLD_OUT")
 			for _, p := range cfg.VPSPlans {
-				fmt.Fprintf(w, "%d\t%s\t%s\t%s\t%s %s\t%d\t%t\n",
+				fmt.Fprintf(w, "%d\t%s\t%s\t%s\t%s %s\t%g\t%t\n",
 					p.ID, p.Name, p.CPUCores, p.RAM, p.VolumeDisk, p.DiskType, p.PricePerMonth, p.SoldOut)
 			}
 			fmt.Fprintln(w, "\nDATACENTERS")
