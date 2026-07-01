@@ -34,6 +34,12 @@ pre-commit install && pre-commit run -a
 - **English** for all repo artifacts (code, comments, docs, commits, PRs).
 - Small focused commits; `--signoff` on every commit + a `Co-Authored-By: Claude`
   trailer (personal repo). Branch + PR; do not self-merge.
+- **Conventional Commits + release-please (BLOCKING):** commit / PR-title format is
+  `<type>[scope]: <desc>` (`feat`→minor, `fix`→patch, `!` or `BREAKING CHANGE`→major).
+  PRs are squash-merged, so the **PR title is the release commit** — CI enforces its
+  format (`pr-title` workflow). Versioning and `CHANGELOG.md` are automated by
+  **release-please** (merging its release PR tags + runs GoReleaser) — never `git tag`
+  or edit the changelog by hand. See `CONTRIBUTING.md`.
 
 ## Security / opsec (BLOCKING)
 

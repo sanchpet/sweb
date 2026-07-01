@@ -56,3 +56,6 @@ release:
   github:
     owner: sanchpet
     name: sweb
+  # release-please creates the GitHub Release (with the changelog) first; GoReleaser
+  # then uploads the binaries/checksums to it. keep-existing = don't recreate/error.
+  mode: keep-existing
