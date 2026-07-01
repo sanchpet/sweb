@@ -23,9 +23,10 @@ Target the new plan one of two ways (like 'sweb vps create'):
                        (resolves a custom plan; ram and disk are in GB; default
                         category is NVMe)
 
-The resize is asynchronous — the command returns once the change is accepted;
-the node may reboot while it applies. Note: shrinking the disk is refused by the
-API, so the target's disk must be >= the current one.`,
+The resize runs as a sequence of async actions (Modify → ExtIpAdd → …). By
+default the command waits for it to settle, printing each phase; pass --async to
+return as soon as the change is accepted. Note: shrinking the disk is refused by
+the API, so the target's disk must be >= the current one.`,
 	Args: cobra.RangeArgs(1, 2),
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) == 0 { // complete billing IDs for the first arg only
@@ -76,12 +77,12 @@ API, so the target's disk must be >= the current one.`,
 			return err
 		}
 
-		if wait, _ := f.GetBool("wait"); !wait {
-			fmt.Fprintf(cmd.OutOrStdout(), "Changed plan of %s to %d (resize applying asynchronously; pass --wait to block)\n", billingID, planID)
+		if async, _ := f.GetBool("async"); async {
+			fmt.Fprintf(cmd.OutOrStdout(), "Changed plan of %s to %d (resize applying asynchronously)\n", billingID, planID)
 			return nil
 		}
 
-		// --wait: block until the node settles. A resize is a sequence of async
+		// Default: wait until the node settles. A resize is a sequence of async
 		// actions (Modify → ExtIpAdd → …) with is_running staying 1, so we poll
 		// current_action via the SDK and print each phase.
 		ctx, cancel := context.WithTimeout(cmd.Context(), 15*time.Minute)
@@ -109,7 +110,7 @@ func init() {
 	f.Int("ram", 0, "configurator: RAM in GB")
 	f.Int("disk", 0, "configurator: disk in GB")
 	f.Int("category", 0, "configurator: category id (default 1 = NVMe) — see `sweb vps config`")
-	f.Bool("wait", false, "block until the resize settles (poll current_action), printing each phase")
+	f.Bool("async", false, "return immediately instead of waiting for the resize to settle")
 	_ = vpsChangePlanCmd.RegisterFlagCompletionFunc("category", completeCategories)
 
 	vpsCmd.AddCommand(vpsChangePlanCmd)
