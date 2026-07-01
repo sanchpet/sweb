@@ -16,7 +16,7 @@ func subNames(c *cobra.Command) map[string]bool {
 
 func TestCommandTree(t *testing.T) {
 	root := subNames(rootCmd)
-	for _, n := range []string{"configure", "vps"} {
+	for _, n := range []string{"configure", "vps", "token"} {
 		if !root[n] {
 			t.Errorf("root is missing subcommand %q", n)
 		}

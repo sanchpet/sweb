@@ -77,7 +77,25 @@ sweb vps rename login_vps_6 infra-01
 # 6. Delete a VPS by its BILLING_ID (from `vps list`); asks to confirm.
 sweb vps delete login_vps_6
 sweb vps delete login_vps_6 --yes   # skip the confirmation prompt
+
+# 7. Mint a fresh token to stdout, for env-based tooling (like `yc iam create-token`).
+#    Feeds the Terraform provider / any $SWEB_TOKEN consumer without exporting creds.
+export SWEB_TOKEN=$(sweb token)
 ```
+
+### Feeding env-based tools (Terraform, mise)
+
+`sweb token` prints only the token, so tools that read `$SWEB_TOKEN` need no login/password
+in the environment. Wire it into [mise](https://mise.jdx.dev) so a token is injected
+automatically per directory (analogous to `YC_TOKEN` via direnv):
+
+```toml
+# mise.toml — inject a fresh token when entering this dir
+[env]
+SWEB_TOKEN = "{{ exec(command='sweb token') }}"
+```
+
+Configure once (`sweb configure`); the token is minted fresh on each mise activation.
 
 Auth precedence: `--token` flag → `$SWEB_TOKEN` (both one-off, no refresh) →
 stored credentials (auto-refreshing). The token is cached and silently renewed
