@@ -8,16 +8,23 @@ import (
 )
 
 var vpsChangePlanCmd = &cobra.Command{
-	Use:   "change-plan <billing-id> <plan-id>",
+	Use:   "change-plan <billing-id> [plan-id]",
 	Short: "Change a VPS's tariff plan in place (resize)",
 	Long: `Change a VPS's tariff plan via the "changePlan" method — a resize
 without reprovisioning. The billing ID is the service identifier (login_vps_N),
-shown in the BILLING_ID column of 'sweb vps list'. The plan ID comes from
-'sweb vps config' (or a constructor plan id).
+shown in the BILLING_ID column of 'sweb vps list'.
+
+Target the new plan one of two ways (like 'sweb vps create'):
+
+  • a stock plan:      change-plan <billing-id> <plan-id>   (see 'sweb vps config')
+  • the configurator:  change-plan <billing-id> --cpu N --ram N --disk N [--category id]
+                       (resolves a custom plan; ram and disk are in GB; default
+                        category is NVMe)
 
 The resize is asynchronous — the command returns once the change is accepted;
-the node may reboot while it applies.`,
-	Args: cobra.ExactArgs(2),
+the node may reboot while it applies. Note: shrinking the disk is refused by the
+API, so the target's disk must be >= the current one.`,
+	Args: cobra.RangeArgs(1, 2),
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) == 0 { // complete billing IDs for the first arg only
 			return completeBillingIDs(cmd, args, toComplete)
@@ -30,10 +37,39 @@ the node may reboot while it applies.`,
 			return err
 		}
 		billingID := args[0]
-		planID, err := strconv.Atoi(args[1])
-		if err != nil {
-			return fmt.Errorf("plan-id must be an integer: %w", err)
+
+		f := cmd.Flags()
+		cpu, _ := f.GetInt("cpu")
+		ram, _ := f.GetInt("ram")
+		disk, _ := f.GetInt("disk")
+		category, _ := f.GetInt("category")
+		configurator := cpu != 0 || ram != 0 || disk != 0
+
+		var planID int
+		switch {
+		case len(args) == 2:
+			if configurator {
+				return fmt.Errorf("specify either a <plan-id> or --cpu/--ram/--disk, not both")
+			}
+			if planID, err = strconv.Atoi(args[1]); err != nil {
+				return fmt.Errorf("plan-id must be an integer: %w", err)
+			}
+		case configurator:
+			if cpu == 0 || ram == 0 || disk == 0 {
+				return fmt.Errorf("the configurator needs all of --cpu, --ram and --disk")
+			}
+			if category == 0 {
+				category = 1 // NVMe ("Быстрые") — see `sweb vps config`
+			}
+			if planID, err = c.VPS.GetConstructorPlanID(cmd.Context(), cpu, ram, disk, category); err != nil {
+				return fmt.Errorf("resolve configurator plan: %w", err)
+			}
+			fmt.Fprintf(cmd.ErrOrStderr(), "configurator %dcpu/%dGB/%dGB (category %d) → plan %d\n",
+				cpu, ram, disk, category, planID)
+		default:
+			return fmt.Errorf("provide a <plan-id>, or --cpu/--ram/--disk to resolve one")
 		}
+
 		if err := c.VPS.ChangePlan(cmd.Context(), billingID, planID); err != nil {
 			return err
 		}
@@ -43,5 +79,12 @@ the node may reboot while it applies.`,
 }
 
 func init() {
+	f := vpsChangePlanCmd.Flags()
+	f.Int("cpu", 0, "configurator: CPU cores (with --ram/--disk, instead of a plan-id)")
+	f.Int("ram", 0, "configurator: RAM in GB")
+	f.Int("disk", 0, "configurator: disk in GB")
+	f.Int("category", 0, "configurator: category id (default 1 = NVMe) — see `sweb vps config`")
+	_ = vpsChangePlanCmd.RegisterFlagCompletionFunc("category", completeCategories)
+
 	vpsCmd.AddCommand(vpsChangePlanCmd)
 }
