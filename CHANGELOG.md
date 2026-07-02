@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.8.0](https://github.com/sanchpet/sweb/compare/v0.7.0...v0.8.0) (2026-07-02)
+
+
+### Features
+
+* add 'vps local-ip' (private network attach/detach/show) ([#18](https://github.com/sanchpet/sweb/issues/18)) ([a30e2ee](https://github.com/sanchpet/sweb/commit/a30e2eed719aa642065b1a838bc2d55a09ea2c8a))
+
+## Changelog
+
 From v0.8.0 on, this file is maintained automatically by
 [release-please](https://github.com/googleapis/release-please) from
 [Conventional Commit](https://www.conventionalcommits.org/) messages — see
