@@ -21,7 +21,7 @@ configured (netplan/ifcfg) with the assigned local IP — see 'show'.`,
 }
 
 var vpsLocalIPShowCmd = &cobra.Command{
-	Use:               "show <billing-id>",
+	Use:               "show <vps>",
 	Short:             "Show a VPS's local (private) IP",
 	Args:              cobra.ExactArgs(1),
 	ValidArgsFunction: completeBillingIDArg,
@@ -30,7 +30,11 @@ var vpsLocalIPShowCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		info, err := c.IP.Info(cmd.Context(), args[0])
+		billingID, err := resolveVPS(cmd.Context(), c, args[0])
+		if err != nil {
+			return err
+		}
+		info, err := c.IP.Info(cmd.Context(), billingID)
 		if err != nil {
 			return err
 		}
@@ -46,12 +50,12 @@ var vpsLocalIPShowCmd = &cobra.Command{
 }
 
 var vpsLocalIPAddCmd = &cobra.Command{
-	Use:   "add <billing-id>",
+	Use:   "add <vps>",
 	Short: "Attach a VPS to the private (local) network",
 	Long: `Attach an existing VPS to the account private network via "addLocal".
-SpaceWeb assigns the local IP; by default the command waits for it and prints it
-(pass --async to return as soon as the attach is accepted). Configure the private
-NIC in the guest OS afterwards (netplan/ifcfg).`,
+<vps> is the VPS name (alias) or its billing ID. SpaceWeb assigns the local IP;
+by default the command waits for it and prints it (pass --async to return as soon
+as the attach is accepted). Configure the private NIC in the guest OS afterwards.`,
 	Args:              cobra.ExactArgs(1),
 	ValidArgsFunction: completeBillingIDArg,
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -59,7 +63,10 @@ NIC in the guest OS afterwards (netplan/ifcfg).`,
 		if err != nil {
 			return err
 		}
-		billingID := args[0]
+		billingID, err := resolveVPS(cmd.Context(), c, args[0])
+		if err != nil {
+			return err
+		}
 		if err := c.IP.AddLocal(cmd.Context(), billingID); err != nil {
 			return err
 		}
@@ -80,7 +87,7 @@ NIC in the guest OS afterwards (netplan/ifcfg).`,
 }
 
 var vpsLocalIPRemoveCmd = &cobra.Command{
-	Use:               "remove <billing-id>",
+	Use:               "remove <vps>",
 	Short:             "Detach a VPS from the private (local) network",
 	Args:              cobra.ExactArgs(1),
 	ValidArgsFunction: completeBillingIDArg,
@@ -89,10 +96,14 @@ var vpsLocalIPRemoveCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		if err := c.IP.RemoveLocal(cmd.Context(), args[0]); err != nil {
+		billingID, err := resolveVPS(cmd.Context(), c, args[0])
+		if err != nil {
 			return err
 		}
-		fmt.Fprintf(cmd.OutOrStdout(), "Detached %s from the local network\n", args[0])
+		if err := c.IP.RemoveLocal(cmd.Context(), billingID); err != nil {
+			return err
+		}
+		fmt.Fprintf(cmd.OutOrStdout(), "Detached %s from the local network\n", billingID)
 		return nil
 	},
 }
