@@ -86,7 +86,14 @@ func completeBillingIDs(cmd *cobra.Command, _ []string, _ string) ([]string, cob
 		if v.BillingID == "" {
 			continue
 		}
-		out = append(out, fmt.Sprintf("%s\t%s", v.BillingID, v.Name))
+		// Offer the name (what the user knows) as the completion value, with the
+		// billing id as the description; commands resolve either (see resolveVPS).
+		// Unnamed VPS fall back to the billing id as the value.
+		if v.Name != "" {
+			out = append(out, fmt.Sprintf("%s\t%s", v.Name, v.BillingID))
+		} else {
+			out = append(out, v.BillingID)
+		}
 	}
 	return out, cobra.ShellCompDirectiveNoFileComp
 }

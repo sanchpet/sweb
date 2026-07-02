@@ -10,11 +10,11 @@ import (
 )
 
 var vpsChangePlanCmd = &cobra.Command{
-	Use:   "change-plan <billing-id> [plan-id]",
+	Use:   "change-plan <vps> [plan-id]",
 	Short: "Change a VPS's tariff plan in place (resize)",
 	Long: `Change a VPS's tariff plan via the "changePlan" method — a resize
-without reprovisioning. The billing ID is the service identifier (login_vps_N),
-shown in the BILLING_ID column of 'sweb vps list'.
+without reprovisioning. <vps> is the VPS name (alias) or its billing ID
+(login_vps_N), from 'sweb vps list'.
 
 Target the new plan one of two ways (like 'sweb vps create'):
 
@@ -39,7 +39,10 @@ the API, so the target's disk must be >= the current one.`,
 		if err != nil {
 			return err
 		}
-		billingID := args[0]
+		billingID, err := resolveVPS(cmd.Context(), c, args[0])
+		if err != nil {
+			return err
+		}
 
 		f := cmd.Flags()
 		cpu, _ := f.GetInt("cpu")

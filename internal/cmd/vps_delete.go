@@ -8,10 +8,10 @@ import (
 )
 
 var vpsDeleteCmd = &cobra.Command{
-	Use:   "delete <billing-id>",
-	Short: "Delete (cancel) a VPS by its billing ID — destructive",
-	Long: `Delete a VPS via the "remove" method. The billing ID is the service
-identifier (login_vps_N), shown in the BILLING_ID column of 'sweb vps list'.
+	Use:   "delete <vps>",
+	Short: "Delete (cancel) a VPS — destructive",
+	Long: `Delete a VPS via the "remove" method. <vps> is the VPS name (alias) or its
+billing ID (login_vps_N), from 'sweb vps list'.
 
 This is DESTRUCTIVE. You are asked to confirm unless --yes is given.`,
 	Args:              cobra.ExactArgs(1),
@@ -21,7 +21,10 @@ This is DESTRUCTIVE. You are asked to confirm unless --yes is given.`,
 		if err != nil {
 			return err
 		}
-		billingID := args[0]
+		billingID, err := resolveVPS(cmd.Context(), c, args[0])
+		if err != nil {
+			return err
+		}
 
 		if yes, _ := cmd.Flags().GetBool("yes"); !yes {
 			confirm := false

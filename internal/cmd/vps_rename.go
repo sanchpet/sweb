@@ -7,10 +7,10 @@ import (
 )
 
 var vpsRenameCmd = &cobra.Command{
-	Use:   "rename <billing-id> <new-name>",
+	Use:   "rename <vps> <new-name>",
 	Short: "Rename a VPS (change its alias) in place",
-	Long: `Rename a VPS via the "rename" method. The billing ID is the service
-identifier (login_vps_N), shown in the BILLING_ID column of 'sweb vps list'.
+	Long: `Rename a VPS via the "rename" method. <vps> is the VPS name (alias) or its
+billing ID (login_vps_N) — both from 'sweb vps list'.
 
 This is an in-place label change — it does not reprovision or bill.`,
 	Args: cobra.ExactArgs(2),
@@ -25,7 +25,11 @@ This is an in-place label change — it does not reprovision or bill.`,
 		if err != nil {
 			return err
 		}
-		billingID, newName := args[0], args[1]
+		billingID, err := resolveVPS(cmd.Context(), c, args[0])
+		if err != nil {
+			return err
+		}
+		newName := args[1]
 		if err := c.VPS.Rename(cmd.Context(), billingID, newName); err != nil {
 			return err
 		}
