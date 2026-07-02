@@ -32,9 +32,26 @@ func TestCommandTree(t *testing.T) {
 		t.Fatal("vps command not registered")
 	}
 	vsub := subNames(vps)
-	for _, n := range []string{"list", "create", "config", "delete", "rename", "change-plan"} {
+	for _, n := range []string{"list", "create", "config", "delete", "rename", "change-plan", "local-ip"} {
 		if !vsub[n] {
 			t.Errorf("vps is missing subcommand %q", n)
+		}
+	}
+
+	// local-ip carries its own show/add/remove subcommands.
+	var localIP *cobra.Command
+	for _, c := range vps.Commands() {
+		if c.Name() == "local-ip" {
+			localIP = c
+		}
+	}
+	if localIP == nil {
+		t.Fatal("vps local-ip command not registered")
+	}
+	lsub := subNames(localIP)
+	for _, n := range []string{"show", "add", "remove"} {
+		if !lsub[n] {
+			t.Errorf("vps local-ip is missing subcommand %q", n)
 		}
 	}
 }
