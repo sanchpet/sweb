@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/sanchpet/sweb/compare/v0.8.0...v0.9.0) (2026-07-02)
+
+
+### Features
+
+* accept VPS name (alias), not just billing id, in vps commands ([#20](https://github.com/sanchpet/sweb/issues/20)) ([90da204](https://github.com/sanchpet/sweb/commit/90da2042be89ed04881d7441cfbea013a2a792ec))
+
 ## [0.8.0](https://github.com/sanchpet/sweb/compare/v0.7.0...v0.8.0) (2026-07-02)
 
 
