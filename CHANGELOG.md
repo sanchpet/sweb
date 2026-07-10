@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.0](https://github.com/sanchpet/sweb/compare/v0.12.0...v0.13.0) (2026-07-10)
+
+
+### Features
+
+* add 'vps backup' and 'vps cloud-backup' commands ([#36](https://github.com/sanchpet/sweb/issues/36)) ([acf1d4f](https://github.com/sanchpet/sweb/commit/acf1d4f5b929ca840125ae1e27af1eca0c4f9bf7))
+
 ## [0.12.0](https://github.com/sanchpet/sweb/compare/v0.11.0...v0.12.0) (2026-07-10)
 
 
