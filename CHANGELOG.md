@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/sanchpet/sweb/compare/v0.9.2...v0.10.0) (2026-07-10)
+
+
+### Features
+
+* add 'vps start|stop|reboot|status' power/state commands ([#29](https://github.com/sanchpet/sweb/issues/29)) ([a97ec28](https://github.com/sanchpet/sweb/commit/a97ec28beb1b6ca9519a5c882d19e10d3fdf78d6))
+
 ## [0.9.2](https://github.com/sanchpet/sweb/compare/v0.9.1...v0.9.2) (2026-07-02)
 
 
