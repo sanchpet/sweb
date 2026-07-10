@@ -32,9 +32,26 @@ func TestCommandTree(t *testing.T) {
 		t.Fatal("vps command not registered")
 	}
 	vsub := subNames(vps)
-	for _, n := range []string{"list", "create", "config", "delete", "rename", "change-plan", "local-ip", "start", "stop", "reboot", "status", "reinstall", "clone", "logs"} {
+	for _, n := range []string{"list", "create", "config", "delete", "rename", "change-plan", "local-ip", "start", "stop", "reboot", "status", "reinstall", "clone", "logs", "ip"} {
 		if !vsub[n] {
 			t.Errorf("vps is missing subcommand %q", n)
+		}
+	}
+
+	// ip carries list/add/remove/move + a ptr subgroup.
+	var ipCmd *cobra.Command
+	for _, c := range vps.Commands() {
+		if c.Name() == "ip" {
+			ipCmd = c
+		}
+	}
+	if ipCmd == nil {
+		t.Fatal("vps ip command not registered")
+	}
+	isub := subNames(ipCmd)
+	for _, n := range []string{"list", "add", "remove", "move", "ptr"} {
+		if !isub[n] {
+			t.Errorf("vps ip is missing subcommand %q", n)
 		}
 	}
 
