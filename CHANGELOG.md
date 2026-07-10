@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/sanchpet/sweb/compare/v0.10.0...v0.11.0) (2026-07-10)
+
+
+### Features
+
+* add 'vps reinstall|clone|logs' commands ([#32](https://github.com/sanchpet/sweb/issues/32)) ([9bef775](https://github.com/sanchpet/sweb/commit/9bef77598948cbdf06a979d6cd661e4026c36662))
+
 ## [0.10.0](https://github.com/sanchpet/sweb/compare/v0.9.2...v0.10.0) (2026-07-10)
 
 
