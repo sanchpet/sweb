@@ -32,7 +32,7 @@ func TestCommandTree(t *testing.T) {
 		t.Fatal("vps command not registered")
 	}
 	vsub := subNames(vps)
-	for _, n := range []string{"list", "create", "config", "delete", "rename", "change-plan", "local-ip", "start", "stop", "reboot", "status", "reinstall", "clone", "logs", "ip"} {
+	for _, n := range []string{"list", "create", "config", "delete", "rename", "change-plan", "local-ip", "start", "stop", "reboot", "status", "reinstall", "clone", "logs", "ip", "backup", "cloud-backup"} {
 		if !vsub[n] {
 			t.Errorf("vps is missing subcommand %q", n)
 		}
