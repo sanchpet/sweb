@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/sanchpet/sweb/compare/v0.11.0...v0.12.0) (2026-07-10)
+
+
+### Features
+
+* add 'vps ip' commands (public IPs + PTR) ([#34](https://github.com/sanchpet/sweb/issues/34)) ([b6e14e5](https://github.com/sanchpet/sweb/commit/b6e14e511043fc0a99eb8c376a29ee52d7f21587))
+
 ## [0.11.0](https://github.com/sanchpet/sweb/compare/v0.10.0...v0.11.0) (2026-07-10)
 
 
