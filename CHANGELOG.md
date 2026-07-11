@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.1](https://github.com/sanchpet/sweb/compare/v0.15.0...v0.15.1) (2026-07-11)
+
+
+### Bug Fixes
+
+* bump sweb-go-sdk to v0.13.1 for DNS info array decode ([#42](https://github.com/sanchpet/sweb/issues/42)) ([00be648](https://github.com/sanchpet/sweb/commit/00be648a592f055dda7b6d9714a118a2567bab0c))
+
 ## [0.15.0](https://github.com/sanchpet/sweb/compare/v0.14.0...v0.15.0) (2026-07-11)
 
 
