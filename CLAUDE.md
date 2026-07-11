@@ -10,7 +10,8 @@ config, and output. Keep it that way — no HTTP/JSON-RPC here.
 - `main.go` → `internal/cmd.Execute()` (Cobra root wrapped by Charm **Fang**).
 - `internal/cmd/` — **one file per command**, `<group>_<verb>.go` (e.g.
   `vps_create.go`, `vps_change_plan.go`, `vps_power.go` = start/stop/reboot,
-  `vps_status.go`). Top level: `configure`, `token`, `vps`. `root.go` holds config
+  `vps_status.go`; `dns_*.go` = the domain DNS zone). Top level: `configure`,
+  `token`, `vps`, `dns`. `root.go` holds config
   wiring + the shared `client()` and `render()` helpers; `resolve.go` and
   `completion.go` hold cross-command helpers. A new command is a new file with an
   `init()` that hangs it off its parent — no central registry to edit.
