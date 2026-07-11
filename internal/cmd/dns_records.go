@@ -29,10 +29,21 @@ var dnsRecordsCmd = &cobra.Command{
 				if name == "" {
 					name = "@"
 				}
-				fmt.Fprintf(w, "%d\t%s\t%s\t%s\t%s\n", int64(r.Index), r.Type, name, r.Value, recordDetails(r))
+				fmt.Fprintf(w, "%d\t%s\t%s\t%s\t%s\n", int64(r.Index), r.Type, name, truncateCell(r.Value, 60), recordDetails(r))
 			}
 		})
 	},
+}
+
+// truncateCell shortens a value for table display so one long record (a DKIM
+// TXT can run 250+ chars) does not blow the column width out for every row. The
+// full value is always available via -o json or `dns export`.
+func truncateCell(s string, limit int) string {
+	r := []rune(s)
+	if len(r) <= limit {
+		return s
+	}
+	return string(r[:limit-1]) + "…"
 }
 
 // recordDetails renders the type-specific fields of a record into one column.
