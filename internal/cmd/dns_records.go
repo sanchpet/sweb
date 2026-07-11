@@ -23,13 +23,17 @@ var dnsRecordsCmd = &cobra.Command{
 			return err
 		}
 		return render(cmd, recs, func(w io.Writer) {
+			// VALUE is capped so one long record (a DKIM TXT runs 250+ chars) does
+			// not stretch the column; the full value stays in -o json / dns export.
+			// DETAILS is a separate trailing column — empty for A/CNAME, so no
+			// visible gap there.
 			fmt.Fprintln(w, "INDEX\tTYPE\tNAME\tVALUE\tDETAILS")
 			for _, r := range recs {
 				name := r.Name
 				if name == "" {
 					name = "@"
 				}
-				fmt.Fprintf(w, "%d\t%s\t%s\t%s\t%s\n", int64(r.Index), r.Type, name, truncateCell(r.Value, 60), recordDetails(r))
+				fmt.Fprintf(w, "%d\t%s\t%s\t%s\t%s\n", int64(r.Index), r.Type, name, truncateCell(r.Value, 40), recordDetails(r))
 			}
 		})
 	},
