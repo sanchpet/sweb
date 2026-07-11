@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.0](https://github.com/sanchpet/sweb/compare/v0.13.0...v0.14.0) (2026-07-11)
+
+
+### Features
+
+* add dns command group ([#38](https://github.com/sanchpet/sweb/issues/38)) ([78a02ad](https://github.com/sanchpet/sweb/commit/78a02ad95c3d378a9e6743c10c302f022b6eca70))
+
 ## [0.13.0](https://github.com/sanchpet/sweb/compare/v0.12.0...v0.13.0) (2026-07-10)
 
 
