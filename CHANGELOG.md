@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.0](https://github.com/sanchpet/sweb/compare/v0.14.0...v0.15.0) (2026-07-11)
+
+
+### Features
+
+* multi-account support via credential profiles ([#40](https://github.com/sanchpet/sweb/issues/40)) ([a1dfbf6](https://github.com/sanchpet/sweb/commit/a1dfbf6583dbd2d20d1502691952f8196fb29407))
+
 ## [0.14.0](https://github.com/sanchpet/sweb/compare/v0.13.0...v0.14.0) (2026-07-11)
 
 
