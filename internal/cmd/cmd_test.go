@@ -16,9 +16,26 @@ func subNames(c *cobra.Command) map[string]bool {
 
 func TestCommandTree(t *testing.T) {
 	root := subNames(rootCmd)
-	for _, n := range []string{"configure", "vps", "token"} {
+	for _, n := range []string{"configure", "vps", "token", "dns"} {
 		if !root[n] {
 			t.Errorf("root is missing subcommand %q", n)
+		}
+	}
+
+	// dns carries read (records/export) + per-type edit commands.
+	var dns *cobra.Command
+	for _, c := range rootCmd.Commands() {
+		if c.Name() == "dns" {
+			dns = c
+		}
+	}
+	if dns == nil {
+		t.Fatal("dns command not registered")
+	}
+	dsub := subNames(dns)
+	for _, n := range []string{"records", "export", "record", "mx", "srv", "ns", "txt"} {
+		if !dsub[n] {
+			t.Errorf("dns is missing subcommand %q", n)
 		}
 	}
 
