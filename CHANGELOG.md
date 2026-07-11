@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.2](https://github.com/sanchpet/sweb/compare/v0.15.1...v0.15.2) (2026-07-11)
+
+
+### Bug Fixes
+
+* bound the DNS records VALUE column width ([#44](https://github.com/sanchpet/sweb/issues/44)) ([58ac2fd](https://github.com/sanchpet/sweb/commit/58ac2fd322db3353604c47b0a194f36802b107ca))
+
 ## [0.15.1](https://github.com/sanchpet/sweb/compare/v0.15.0...v0.15.1) (2026-07-11)
 
 
