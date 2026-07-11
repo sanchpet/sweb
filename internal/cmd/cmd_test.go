@@ -16,9 +16,26 @@ func subNames(c *cobra.Command) map[string]bool {
 
 func TestCommandTree(t *testing.T) {
 	root := subNames(rootCmd)
-	for _, n := range []string{"configure", "vps", "token", "dns"} {
+	for _, n := range []string{"configure", "vps", "token", "dns", "profile"} {
 		if !root[n] {
 			t.Errorf("root is missing subcommand %q", n)
+		}
+	}
+
+	// profile carries the multi-account management subcommands.
+	var profile *cobra.Command
+	for _, c := range rootCmd.Commands() {
+		if c.Name() == "profile" {
+			profile = c
+		}
+	}
+	if profile == nil {
+		t.Fatal("profile command not registered")
+	}
+	psub := subNames(profile)
+	for _, n := range []string{"list", "use", "current", "bind", "unbind", "remove"} {
+		if !psub[n] {
+			t.Errorf("profile is missing subcommand %q", n)
 		}
 	}
 

@@ -23,10 +23,14 @@ SpaceWeb tokens are short-lived, so mint on demand rather than caching in a
 dotfile. The freshly minted token is also written back to the credential store.`,
 	Args: cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, _ []string) error {
+		profile := activeProfile
+		if profile == "" {
+			profile = defaultProfile
+		}
 		login, password := os.Getenv("SWEB_LOGIN"), os.Getenv("SWEB_PASSWORD")
 		var cached string
 		if login == "" || password == "" {
-			login, password, cached = loadCredentials()
+			login, password, cached = loadCredentials(profile)
 		}
 
 		if login != "" && password != "" {
@@ -34,7 +38,7 @@ dotfile. The freshly minted token is also written back to the credential store.`
 			if err != nil {
 				return err
 			}
-			_ = saveToken(token) // keep the store's cached token fresh; best-effort
+			_ = saveToken(profile, token) // keep the store's cached token fresh; best-effort
 			fmt.Fprintln(cmd.OutOrStdout(), token)
 			return nil
 		}

@@ -1,11 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
-
-	"github.com/spf13/viper"
 	"github.com/zalando/go-keyring"
 )
 
@@ -20,18 +15,27 @@ const (
 	keyToken    = "token"
 )
 
-func tokenFilePath() string { return filepath.Join(configDir(), "config.yaml") }
+// credKey namespaces a credential field by profile in the keyring. The default
+// profile keeps the legacy unprefixed keys so a pre-profiles install is read
+// unchanged; other profiles get a "<profile>." prefix.
+func credKey(profile, field string) string {
+	if profile == "" || profile == defaultProfile {
+		return field
+	}
+	return profile + "." + field
+}
 
-// storeCredentials persists login, password and the initial token, preferring
-// the OS keyring (macOS Keychain, Linux Secret Service, Windows Credential
-// Manager). Falls back to a 0600 file when the keyring is unavailable or
-// insecure is true. Returns where it landed and whether it fell back, so the
-// caller can surface the fallback explicitly (never silently).
-func storeCredentials(login, password, token string, insecure bool) (location string, fellBack bool, err error) {
+// storeCredentials persists a profile's login, password and initial token,
+// preferring the OS keyring (macOS Keychain, Linux Secret Service, Windows
+// Credential Manager). Falls back to the 0600 config file (under
+// credentials.<profile>) when the keyring is unavailable or insecure is true.
+// Returns where it landed and whether it fell back, so the caller can surface
+// the fallback explicitly (never silently).
+func storeCredentials(profile, login, password, token string, insecure bool) (location string, fellBack bool, err error) {
 	if !insecure {
-		e1 := keyring.Set(keyringService, keyLogin, login)
-		e2 := keyring.Set(keyringService, keyPassword, password)
-		e3 := keyring.Set(keyringService, keyToken, token)
+		e1 := keyring.Set(keyringService, credKey(profile, keyLogin), login)
+		e2 := keyring.Set(keyringService, credKey(profile, keyPassword), password)
+		e3 := keyring.Set(keyringService, credKey(profile, keyToken), token)
 		if e1 == nil && e2 == nil && e3 == nil {
 			return "OS keyring", false, nil
 		}
@@ -39,48 +43,59 @@ func storeCredentials(login, password, token string, insecure bool) (location st
 		location = "keyring unavailable → "
 	}
 
-	dir := configDir()
-	if err = os.MkdirAll(dir, 0o700); err != nil {
+	if err = configSet(map[string]any{
+		keyLogin:    login,
+		keyPassword: password,
+		keyToken:    token,
+	}, "credentials", profile); err != nil {
 		return "", fellBack, err
 	}
-	if err = writeCredFile(login, password, token); err != nil {
-		return "", fellBack, err
-	}
-	return location + tokenFilePath() + " (plaintext, 0600)", fellBack, nil
+	return location + configPath() + " (plaintext, 0600)", fellBack, nil
 }
 
-// saveToken updates only the cached token — used by the SDK's refresh callback
-// after a transparent re-authentication.
-func saveToken(token string) error {
-	if err := keyring.Set(keyringService, keyToken, token); err == nil {
+// saveToken updates only a profile's cached token — used by the SDK's refresh
+// callback after a transparent re-authentication.
+func saveToken(profile, token string) error {
+	if err := keyring.Set(keyringService, credKey(profile, keyToken), token); err == nil {
 		return nil
 	}
-	login, password, _ := loadCredentials()
-	if err := os.MkdirAll(configDir(), 0o700); err != nil {
-		return err
-	}
-	return writeCredFile(login, password, token)
+	return configSet(token, "credentials", profile, keyToken)
 }
 
-func writeCredFile(login, password, token string) error {
-	content := fmt.Sprintf("login: %s\npassword: %s\ntoken: %s\n", login, password, token)
-	return os.WriteFile(tokenFilePath(), []byte(content), 0o600)
-}
-
-// loadCredentials reads login/password/token from the keyring, falling back to
-// the config file for any field the keyring does not hold.
-func loadCredentials() (login, password, token string) {
-	login, _ = keyring.Get(keyringService, keyLogin)
-	password, _ = keyring.Get(keyringService, keyPassword)
-	token, _ = keyring.Get(keyringService, keyToken)
+// loadCredentials reads a profile's login/password/token from the keyring,
+// falling back to the config file for any field the keyring does not hold.
+func loadCredentials(profile string) (login, password, token string) {
+	login, _ = keyring.Get(keyringService, credKey(profile, keyLogin))
+	password, _ = keyring.Get(keyringService, credKey(profile, keyPassword))
+	token, _ = keyring.Get(keyringService, credKey(profile, keyToken))
 	if login == "" {
-		login = viper.GetString(keyLogin)
+		login = credFileField(profile, keyLogin)
 	}
 	if password == "" {
-		password = viper.GetString(keyPassword)
+		password = credFileField(profile, keyPassword)
 	}
 	if token == "" {
-		token = viper.GetString(keyToken)
+		token = credFileField(profile, keyToken)
 	}
 	return login, password, token
+}
+
+// credFileField reads a fallback credential from the config file. The default
+// profile also honours legacy top-level keys written before profiles existed.
+func credFileField(profile, field string) string {
+	if v := configGetString("credentials", profile, field); v != "" {
+		return v
+	}
+	if profile == defaultProfile {
+		return configGetString(field)
+	}
+	return ""
+}
+
+// removeCredentials deletes a profile's stored credentials from the keyring
+// (config-file entries are cleared by deleteProfileConfig).
+func removeCredentials(profile string) {
+	_ = keyring.Delete(keyringService, credKey(profile, keyLogin))
+	_ = keyring.Delete(keyringService, credKey(profile, keyPassword))
+	_ = keyring.Delete(keyringService, credKey(profile, keyToken))
 }

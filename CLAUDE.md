@@ -23,6 +23,18 @@ config, and output. Keep it that way — no HTTP/JSON-RPC here.
   re-auths transparently on expiry; the callback persists the new token via
   `saveToken`. Precedence: `--token` flag / `$SWEB_TOKEN` (one-off, no refresh) →
   stored credentials. `-o table|json` for output; non-auth config via Viper.
+- **Multi-account (profiles).** SpaceWeb serves both panels (cloud/VPS,
+  hosting/mail+domains) from one `api.sweb.ru`, so an account is just a credential
+  set — a **profile**. Credentials are keyring-namespaced by profile (`credKey`;
+  the `default` profile keeps legacy unprefixed keys — no migration). The **active
+  profile is resolved once** in the root `PersistentPreRunE` (`resolveActiveProfile`,
+  wired in `init` to dodge a `rootCmd`↔`topLevelGroup` cycle) and cached in
+  `activeProfile`, so `client()` stays parameterless across its 40+ call sites.
+  Precedence: `--profile` > `$SWEB_PROFILE` > **group binding** (a command's
+  top-level group, e.g. `dns`, bound to a profile via `sweb profile bind`) >
+  `current_profile` > `default`. Profile config (`current_profile`, `profiles`,
+  `bindings`) is read/written **case-preserving** via `profile.go`'s config store,
+  NOT viper (which lowercases keys and would mangle profile names).
 - **Output:** `-o table|json`. Every command renders through `render(cmd, data,
   tableFn)` — `-o json` marshals `data`, otherwise `tableFn` writes a `tabwriter`
   table. Keep both paths in sync.
