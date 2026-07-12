@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.0](https://github.com/sanchpet/sweb/compare/v0.15.3...v0.16.0) (2026-07-12)
+
+
+### Features
+
+* add domains command group over the /domains lifecycle ([#48](https://github.com/sanchpet/sweb/issues/48)) ([cdabd5d](https://github.com/sanchpet/sweb/commit/cdabd5db3fc502d1b4f2b26d5a4ad8d509861c82))
+
 ## [0.15.3](https://github.com/sanchpet/sweb/compare/v0.15.2...v0.15.3) (2026-07-11)
 
 
