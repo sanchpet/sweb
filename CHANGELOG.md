@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.3](https://github.com/sanchpet/sweb/compare/v0.16.2...v0.16.3) (2026-07-12)
+
+
+### Bug Fixes
+
+* make domains price resilient to per-check API refusals ([#54](https://github.com/sanchpet/sweb/issues/54)) ([9989196](https://github.com/sanchpet/sweb/commit/9989196e8fa6c50fc6f4d47a4a006adc3ac06301))
+
 ## [0.16.2](https://github.com/sanchpet/sweb/compare/v0.16.1...v0.16.2) (2026-07-12)
 
 
