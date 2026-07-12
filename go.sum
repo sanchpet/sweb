@@ -120,6 +120,8 @@ github.com/sanchpet/sweb-go-sdk v0.13.1 h1:CaOafdxZCnF7tXA9nfo3gz0Dbf/DSg6sCRe6v
 github.com/sanchpet/sweb-go-sdk v0.13.1/go.mod h1:eu5yxEZRTcObiBSGEvZ6yJ3m4M4Rj399lIxAuZ7OzyM=
 github.com/sanchpet/sweb-go-sdk v0.14.0 h1:j1rOFSuFlkk8oHUH8NNgq0L1vTmzgf216Fx6p9rFsUI=
 github.com/sanchpet/sweb-go-sdk v0.14.0/go.mod h1:eu5yxEZRTcObiBSGEvZ6yJ3m4M4Rj399lIxAuZ7OzyM=
+github.com/sanchpet/sweb-go-sdk v0.14.1 h1:mIpNagRTGTmBOH1M/pYzPz2lzE4PsJsBzfI/bcKtolE=
+github.com/sanchpet/sweb-go-sdk v0.14.1/go.mod h1:eu5yxEZRTcObiBSGEvZ6yJ3m4M4Rj399lIxAuZ7OzyM=
 github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8 h1:+jumHNA0Wrelhe64i8F6HNlS8pkoyMv5sreGx2Ry5Rw=
 github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8/go.mod h1:3n1Cwaq1E1/1lhQhtRK2ts/ZwZEhjcQeJQ1RuC6Q/8U=
 github.com/spf13/afero v1.15.0 h1:b/YBCLWAJdFWJTN9cLhiXXcD7mzKn9Dm86dNnfyQw1I=

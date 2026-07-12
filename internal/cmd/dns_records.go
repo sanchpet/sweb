@@ -29,14 +29,25 @@ var dnsRecordsCmd = &cobra.Command{
 			// visible gap there.
 			fmt.Fprintln(w, "INDEX\tTYPE\tNAME\tVALUE\tDETAILS")
 			for _, r := range recs {
-				name := r.Name
-				if name == "" {
-					name = "@"
-				}
-				fmt.Fprintf(w, "%d\t%s\t%s\t%s\t%s\n", int64(r.Index), r.Type, name, truncateCell(r.Value, 40), recordDetails(r))
+				fmt.Fprintf(w, "%d\t%s\t%s\t%s\t%s\n", int64(r.Index), r.Type, recordName(r), truncateCell(r.Value, 40), recordDetails(r))
 			}
 		})
 	},
+}
+
+// recordName is the host shown in the NAME column. Most records carry it in
+// Name, but a subdomain TXT leaves Name empty and puts its host in Domain (e.g.
+// "_sweb-probe") — without this those rows would misleadingly render as "@". The
+// apex ("" or "@") renders as "@".
+func recordName(r sweb.DNSRecord) string {
+	name := r.Name
+	if name == "" && r.Domain != "" && r.Domain != "@" {
+		name = r.Domain
+	}
+	if name == "" {
+		name = "@"
+	}
+	return name
 }
 
 // truncateCell shortens a value for table display so one long record (a DKIM
