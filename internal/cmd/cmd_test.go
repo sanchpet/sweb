@@ -16,7 +16,7 @@ func subNames(c *cobra.Command) map[string]bool {
 
 func TestCommandTree(t *testing.T) {
 	root := subNames(rootCmd)
-	for _, n := range []string{"configure", "vps", "token", "dns", "profile"} {
+	for _, n := range []string{"configure", "vps", "token", "dns", "domains", "profile"} {
 		if !root[n] {
 			t.Errorf("root is missing subcommand %q", n)
 		}
@@ -53,6 +53,39 @@ func TestCommandTree(t *testing.T) {
 	for _, n := range []string{"records", "export", "record", "mx", "srv", "ns", "txt"} {
 		if !dsub[n] {
 			t.Errorf("dns is missing subcommand %q", n)
+		}
+	}
+
+	// domains carries read (list/info/subdomains/price/redirect) + lifecycle
+	// mutations + a subdomain subgroup.
+	var domains *cobra.Command
+	for _, c := range rootCmd.Commands() {
+		if c.Name() == "domains" {
+			domains = c
+		}
+	}
+	if domains == nil {
+		t.Fatal("domains command not registered")
+	}
+	dmsub := subNames(domains)
+	for _, n := range []string{"list", "info", "subdomains", "price", "redirect", "move", "register", "prolong", "autoprolong", "remove", "subdomain"} {
+		if !dmsub[n] {
+			t.Errorf("domains is missing subcommand %q", n)
+		}
+	}
+	var domainsSubdomain *cobra.Command
+	for _, c := range domains.Commands() {
+		if c.Name() == "subdomain" {
+			domainsSubdomain = c
+		}
+	}
+	if domainsSubdomain == nil {
+		t.Fatal("domains subdomain command not registered")
+	}
+	dssub := subNames(domainsSubdomain)
+	for _, n := range []string{"create", "remove"} {
+		if !dssub[n] {
+			t.Errorf("domains subdomain is missing subcommand %q", n)
 		}
 	}
 
