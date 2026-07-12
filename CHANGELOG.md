@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.1](https://github.com/sanchpet/sweb/compare/v0.16.0...v0.16.1) (2026-07-12)
+
+
+### Bug Fixes
+
+* show the subdomain host for TXT records in the dns records table ([#50](https://github.com/sanchpet/sweb/issues/50)) ([21be1a0](https://github.com/sanchpet/sweb/commit/21be1a01b15ff88014c2ba4fe04b662f1ad98e35))
+
 ## [0.16.0](https://github.com/sanchpet/sweb/compare/v0.15.3...v0.16.0) (2026-07-12)
 
 
