@@ -33,13 +33,11 @@ record for edit/remove.`,
 		f := cmd.Flags()
 		name, _ := f.GetString("name")
 		value, _ := f.GetString("value")
-		prefix, _ := f.GetString("prefix")
 		if err := c.DNS.EditMain(cmd.Context(), domain, action, sweb.MainRecord{
-			Index:  flagInt(cmd, "index"),
-			Name:   name,
-			Type:   rtype,
-			Value:  value,
-			Prefix: prefix,
+			Index: flagInt(cmd, "index"),
+			Name:  name,
+			Type:  rtype,
+			Value: value,
 		}); err != nil {
 			return err
 		}
@@ -54,6 +52,5 @@ func init() {
 	f.String("name", "", "subdomain name, or empty for the apex")
 	f.String("type", "A", "record type: A, AAAA, CNAME, …")
 	f.String("value", "", "record value")
-	f.String("prefix", "", "record prefix or TTL")
 	dnsCmd.AddCommand(dnsRecordCmd)
 }
