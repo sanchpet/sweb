@@ -1,6 +1,39 @@
 package cmd
 
-import "testing"
+import (
+	"errors"
+	"testing"
+
+	sweb "github.com/sanchpet/sweb-go-sdk"
+)
+
+func TestPriceCells(t *testing.T) {
+	if floatCell(nil) != "—" {
+		t.Errorf("floatCell(nil) = %q, want —", floatCell(nil))
+	}
+	v := 189.0
+	if floatCell(&v) != "189" {
+		t.Errorf("floatCell(189) = %q, want 189", floatCell(&v))
+	}
+	if boolCell(nil) != "—" {
+		t.Errorf("boolCell(nil) = %q, want —", boolCell(nil))
+	}
+	yes := true
+	if boolCell(&yes) != "yes" {
+		t.Errorf("boolCell(true) = %q, want yes", boolCell(&yes))
+	}
+}
+
+func TestApiReason(t *testing.T) {
+	// A SpaceWeb API error surfaces just its human message.
+	if got := apiReason(&sweb.Error{Code: -32500, Message: "Домен занят"}); got != "Домен занят" {
+		t.Errorf("apiReason(sweb.Error) = %q, want the message", got)
+	}
+	// A plain error falls back to its full string.
+	if got := apiReason(errors.New("boom")); got != "boom" {
+		t.Errorf("apiReason(plain) = %q, want boom", got)
+	}
+}
 
 func TestYesNo(t *testing.T) {
 	if yesNo(true) != "yes" || yesNo(false) != "no" {
