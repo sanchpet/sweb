@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.2](https://github.com/sanchpet/sweb/compare/v0.16.1...v0.16.2) (2026-07-12)
+
+
+### Bug Fixes
+
+* drop the misleading --prefix flag from dns record ([#52](https://github.com/sanchpet/sweb/issues/52)) ([54cd691](https://github.com/sanchpet/sweb/commit/54cd69158205e4176a3909c1d002e1cea488007f))
+
 ## [0.16.1](https://github.com/sanchpet/sweb/compare/v0.16.0...v0.16.1) (2026-07-12)
 
 
