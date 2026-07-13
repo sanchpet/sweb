@@ -2,19 +2,7 @@ package cmd
 
 import (
 	"testing"
-
-	"github.com/spf13/cobra"
 )
-
-// findSub returns the named direct subcommand of c, or nil.
-func findSub(c *cobra.Command, name string) *cobra.Command {
-	for _, sub := range c.Commands() {
-		if sub.Name() == name {
-			return sub
-		}
-	}
-	return nil
-}
 
 func TestMailCommandTree(t *testing.T) {
 	hosting := findSub(rootCmd, "hosting")
