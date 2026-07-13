@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	sweb "github.com/sanchpet/sweb-go-sdk"
+	"github.com/sanchpet/sweb-go-sdk/dns"
 	"github.com/spf13/cobra"
 )
 
@@ -33,7 +33,7 @@ record for edit/remove.`,
 		f := cmd.Flags()
 		name, _ := f.GetString("name")
 		value, _ := f.GetString("value")
-		if err := c.DNS.EditMain(cmd.Context(), domain, action, sweb.MainRecord{
+		if err := c.DNS.EditMain(cmd.Context(), domain, action, dns.MainRecord{
 			Index: flagInt(cmd, "index"),
 			Name:  name,
 			Type:  rtype,

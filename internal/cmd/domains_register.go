@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	sweb "github.com/sanchpet/sweb-go-sdk"
+	domainapi "github.com/sanchpet/sweb-go-sdk/domains"
 	"github.com/spf13/cobra"
 )
 
@@ -30,7 +30,7 @@ require it.`,
 		prolong, _ := cmd.Flags().GetString("prolong")
 		dir, _ := cmd.Flags().GetString("dir")
 		shield, _ := cmd.Flags().GetBool("shield")
-		if err := c.Domains.Register(cmd.Context(), sweb.RegisterOptions{
+		if err := c.Domains.Register(cmd.Context(), domainapi.RegisterOptions{
 			Domain:      domain,
 			PayType:     pay,
 			DomPerson:   flagInt(cmd, "person"),

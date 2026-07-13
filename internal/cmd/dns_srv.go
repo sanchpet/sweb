@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	sweb "github.com/sanchpet/sweb-go-sdk"
+	"github.com/sanchpet/sweb-go-sdk/dns"
 	"github.com/spf13/cobra"
 )
 
@@ -34,7 +34,7 @@ var dnsSrvCmd = &cobra.Command{
 		service, _ := f.GetString("service")
 		protocol, _ := f.GetString("protocol")
 		sub, _ := f.GetString("subdomain")
-		if err := c.DNS.EditSRV(cmd.Context(), domain, action, sweb.SRVRecord{
+		if err := c.DNS.EditSRV(cmd.Context(), domain, action, dns.SRVRecord{
 			Index:     flagInt(cmd, "index"),
 			Priority:  priority,
 			TTL:       ttl,

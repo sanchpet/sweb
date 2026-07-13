@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	sweb "github.com/sanchpet/sweb-go-sdk"
+	domainapi "github.com/sanchpet/sweb-go-sdk/domains"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +20,7 @@ var domainsListCmd = &cobra.Command{
 		typ, _ := cmd.Flags().GetString("type")
 		filter, _ := cmd.Flags().GetString("filter")
 		packages, _ := cmd.Flags().GetBool("packages")
-		domains, err := c.Domains.List(cmd.Context(), &sweb.DomainListOptions{
+		domains, err := c.Domains.List(cmd.Context(), &domainapi.ListOptions{
 			Type:         typ,
 			Filter:       filter,
 			ShowPackages: packages,

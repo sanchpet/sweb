@@ -6,6 +6,7 @@ import (
 	"time"
 
 	sweb "github.com/sanchpet/sweb-go-sdk"
+	"github.com/sanchpet/sweb-go-sdk/vps"
 	"github.com/spf13/cobra"
 )
 
@@ -69,7 +70,7 @@ var (
 )
 
 // runState renders a VPS's power state as a word.
-func runState(v *sweb.VPS) string {
+func runState(v *vps.VPS) string {
 	if v.IsRunning == 1 {
 		return "running"
 	}

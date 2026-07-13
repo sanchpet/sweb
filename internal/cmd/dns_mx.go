@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	sweb "github.com/sanchpet/sweb-go-sdk"
+	"github.com/sanchpet/sweb-go-sdk/dns"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +28,7 @@ var dnsMxCmd = &cobra.Command{
 		priority, _ := cmd.Flags().GetInt("priority")
 		value, _ := cmd.Flags().GetString("value")
 		sub, _ := cmd.Flags().GetString("subdomain")
-		if err := c.DNS.EditMX(cmd.Context(), domain, action, sweb.MXRecord{
+		if err := c.DNS.EditMX(cmd.Context(), domain, action, dns.MXRecord{
 			Index:     flagInt(cmd, "index"),
 			Priority:  priority,
 			Value:     value,

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	sweb "github.com/sanchpet/sweb-go-sdk"
+	"github.com/sanchpet/sweb-go-sdk/apierr"
 )
 
 func TestPriceCells(t *testing.T) {
@@ -26,8 +26,8 @@ func TestPriceCells(t *testing.T) {
 
 func TestApiReason(t *testing.T) {
 	// A SpaceWeb API error surfaces just its human message.
-	if got := apiReason(&sweb.Error{Code: -32500, Message: "Домен занят"}); got != "Домен занят" {
-		t.Errorf("apiReason(sweb.Error) = %q, want the message", got)
+	if got := apiReason(&apierr.Error{Code: -32500, Message: "Домен занят"}); got != "Домен занят" {
+		t.Errorf("apiReason(apierr.Error) = %q, want the message", got)
 	}
 	// A plain error falls back to its full string.
 	if got := apiReason(errors.New("boom")); got != "boom" {
