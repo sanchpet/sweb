@@ -4,19 +4,19 @@ import (
 	"strings"
 	"testing"
 
-	sweb "github.com/sanchpet/sweb-go-sdk"
+	"github.com/sanchpet/sweb-go-sdk/dns"
 )
 
 func TestRecordName(t *testing.T) {
 	for _, tc := range []struct {
 		name string
-		rec  sweb.DNSRecord
+		rec  dns.Record
 		want string
 	}{
-		{"named A", sweb.DNSRecord{Name: "www"}, "www"},
-		{"apex A", sweb.DNSRecord{Name: ""}, "@"},
-		{"apex TXT", sweb.DNSRecord{Name: "", Domain: "@"}, "@"},
-		{"subdomain TXT", sweb.DNSRecord{Name: "", Domain: "_sweb-probe"}, "_sweb-probe"},
+		{"named A", dns.Record{Name: "www"}, "www"},
+		{"apex A", dns.Record{Name: ""}, "@"},
+		{"apex TXT", dns.Record{Name: "", Domain: "@"}, "@"},
+		{"subdomain TXT", dns.Record{Name: "", Domain: "_sweb-probe"}, "_sweb-probe"},
 	} {
 		if got := recordName(tc.rec); got != tc.want {
 			t.Errorf("%s: recordName = %q, want %q", tc.name, got, tc.want)

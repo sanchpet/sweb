@@ -5,7 +5,7 @@ import (
 	"io"
 	"strings"
 
-	sweb "github.com/sanchpet/sweb-go-sdk"
+	"github.com/sanchpet/sweb-go-sdk/dns"
 	"github.com/spf13/cobra"
 )
 
@@ -39,7 +39,7 @@ var dnsRecordsCmd = &cobra.Command{
 // Name, but a subdomain TXT leaves Name empty and puts its host in Domain (e.g.
 // "_sweb-probe") — without this those rows would misleadingly render as "@". The
 // apex ("" or "@") renders as "@".
-func recordName(r sweb.DNSRecord) string {
+func recordName(r dns.Record) string {
 	name := r.Name
 	if name == "" && r.Domain != "" && r.Domain != "@" {
 		name = r.Domain
@@ -62,7 +62,7 @@ func truncateCell(s string, limit int) string {
 }
 
 // recordDetails renders the type-specific fields of a record into one column.
-func recordDetails(r sweb.DNSRecord) string {
+func recordDetails(r dns.Record) string {
 	var parts []string
 	add := func(k string, v int64) {
 		if v != 0 {

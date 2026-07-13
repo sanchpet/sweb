@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	sweb "github.com/sanchpet/sweb-go-sdk"
+	"github.com/sanchpet/sweb-go-sdk/vps"
 	"github.com/spf13/cobra"
 )
 
@@ -101,7 +101,7 @@ func completeBillingIDs(cmd *cobra.Command, _ []string, _ string) ([]string, cob
 // completionConfig builds a client and fetches the catalog for a completion
 // callback, returning ok=false on any failure (no token, network, etc.) so the
 // shell falls back to no suggestions rather than an error.
-func completionConfig(cmd *cobra.Command) (*sweb.AvailableConfig, bool) {
+func completionConfig(cmd *cobra.Command) (*vps.AvailableConfig, bool) {
 	c, err := client()
 	if err != nil {
 		return nil, false

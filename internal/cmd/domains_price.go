@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	sweb "github.com/sanchpet/sweb-go-sdk"
+	"github.com/sanchpet/sweb-go-sdk/apierr"
 	"github.com/spf13/cobra"
 )
 
@@ -90,7 +90,7 @@ func boolCell(b *bool) string {
 
 // apiReason extracts the human-readable message from a SpaceWeb API error.
 func apiReason(err error) string {
-	var e *sweb.Error
+	var e *apierr.Error
 	if errors.As(err, &e) {
 		return e.Message
 	}

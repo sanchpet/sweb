@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	sweb "github.com/sanchpet/sweb-go-sdk"
+	"github.com/sanchpet/sweb-go-sdk/vps"
 	"github.com/spf13/cobra"
 )
 
@@ -31,7 +31,7 @@ plus plan, resources, addresses, OS and datacenter. Use -o json for the raw node
 		if err != nil {
 			return err
 		}
-		var node *sweb.VPS
+		var node *vps.VPS
 		for i := range list {
 			if list[i].BillingID == billingID {
 				node = &list[i]

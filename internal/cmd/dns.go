@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	sweb "github.com/sanchpet/sweb-go-sdk"
+	"github.com/sanchpet/sweb-go-sdk/dns"
 	"github.com/spf13/cobra"
 )
 
@@ -16,13 +16,13 @@ var dnsCmd = &cobra.Command{
 // edit) and validates it. For a remove it prompts for confirmation unless --yes,
 // returning ok=false when the user cancels. Edit commands must register both the
 // --action and --yes flags.
-func resolveDNSAction(cmd *cobra.Command, what string) (sweb.DNSAction, bool, error) {
+func resolveDNSAction(cmd *cobra.Command, what string) (dns.Action, bool, error) {
 	raw, _ := cmd.Flags().GetString("action")
-	action := sweb.DNSAction(raw)
+	action := dns.Action(raw)
 	switch action {
-	case sweb.DNSActionAdd, sweb.DNSActionEdit:
+	case dns.ActionAdd, dns.ActionEdit:
 		return action, true, nil
-	case sweb.DNSActionRemove:
+	case dns.ActionRemove:
 		if !confirmed(cmd, fmt.Sprintf("Remove %s?", what), "Remove") {
 			return action, false, nil
 		}
@@ -39,11 +39,11 @@ func flagInt(cmd *cobra.Command, name string) int {
 }
 
 // pastTense renders a DNS action for a result message.
-func pastTense(a sweb.DNSAction) string {
+func pastTense(a dns.Action) string {
 	switch a {
-	case sweb.DNSActionAdd:
+	case dns.ActionAdd:
 		return "Added"
-	case sweb.DNSActionRemove:
+	case dns.ActionRemove:
 		return "Removed"
 	default:
 		return "Edited"
