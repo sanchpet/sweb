@@ -16,7 +16,7 @@ const defaultProfile = "default"
 // apiCommandGroups are the top-level command groups a profile can be bound to
 // (SpaceWeb serves both panels from one api.sweb.ru, so a binding only changes
 // which credentials are used, never the endpoint).
-var apiCommandGroups = []string{"vps", "dns", "domains"}
+var apiCommandGroups = []string{"vps", "dns", "domains", "hosting", "pay", "tariff"}
 
 // activeProfile is the profile resolved for the running command. It is set once
 // by the root PersistentPreRunE before any RunE executes, so client() need not
