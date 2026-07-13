@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.17.0](https://github.com/sanchpet/sweb/compare/v0.16.3...v0.17.0) (2026-07-13)
+
+
+### Features
+
+* **cli:** add domains bonus commands ([#74](https://github.com/sanchpet/sweb/issues/74)) ([6a80c0e](https://github.com/sanchpet/sweb/commit/6a80c0e869c91ef97cc58d98e126ef8c0bb2e9b3))
+* **cli:** add domains persons commands ([#73](https://github.com/sanchpet/sweb/issues/73)) ([7d6c7b4](https://github.com/sanchpet/sweb/commit/7d6c7b41e6fce9429580c7ad250cf187ebecb901))
+* **cli:** add hosting backup commands ([#67](https://github.com/sanchpet/sweb/issues/67)) ([2139440](https://github.com/sanchpet/sweb/commit/21394408d2af4b885d8b66ff543254d35f9659a7))
+* **cli:** add hosting cron commands ([#60](https://github.com/sanchpet/sweb/issues/60)) ([1d49641](https://github.com/sanchpet/sweb/commit/1d49641330b75cefe34f7de54dc2f1007878c4a6))
+* **cli:** add hosting db commands ([#61](https://github.com/sanchpet/sweb/issues/61)) ([46b39b0](https://github.com/sanchpet/sweb/commit/46b39b0c8039f97764ffc625cb45d41041641f84))
+* **cli:** add hosting ddg commands ([#65](https://github.com/sanchpet/sweb/issues/65)) ([938fa9d](https://github.com/sanchpet/sweb/commit/938fa9d2599592b7efc6b332aab83ee84a586d5d))
+* **cli:** add hosting disk-usage commands ([#64](https://github.com/sanchpet/sweb/issues/64)) ([15f2aa6](https://github.com/sanchpet/sweb/commit/15f2aa6138f046b719697d1cafb87a90337dded4))
+* **cli:** add hosting load commands ([#66](https://github.com/sanchpet/sweb/issues/66)) ([1ed3bb4](https://github.com/sanchpet/sweb/commit/1ed3bb421fe2f01fbd7b9faa785cf1642431cb9f))
+* **cli:** add hosting mail commands ([#63](https://github.com/sanchpet/sweb/issues/63)) ([adf2893](https://github.com/sanchpet/sweb/commit/adf289321e893db0865338bc2e91244dd0c6865d))
+* **cli:** add hosting partner commands ([#71](https://github.com/sanchpet/sweb/issues/71)) ([03dcbdf](https://github.com/sanchpet/sweb/commit/03dcbdf762e7b5498fd1808df87bd436ee01c161))
+* **cli:** add hosting referral commands ([#69](https://github.com/sanchpet/sweb/issues/69)) ([08be049](https://github.com/sanchpet/sweb/commit/08be04941b0e32abf5539c2273c300d217ffdd84))
+* **cli:** add hosting sites commands ([#59](https://github.com/sanchpet/sweb/issues/59)) ([54c6af3](https://github.com/sanchpet/sweb/commit/54c6af375f9acbe5b6907d5436b45e4d52a5f90d))
+* **cli:** add hosting ssh commands ([#68](https://github.com/sanchpet/sweb/issues/68)) ([eca20f9](https://github.com/sanchpet/sweb/commit/eca20f9db8f3a4594eeeee62f14e63e951d28cde))
+* **cli:** add hosting ssl commands ([#70](https://github.com/sanchpet/sweb/issues/70)) ([77404fa](https://github.com/sanchpet/sweb/commit/77404fa364175affb37c413f8a4deb14eabfdd10))
+* **cli:** add pay commands ([#75](https://github.com/sanchpet/sweb/issues/75)) ([694504b](https://github.com/sanchpet/sweb/commit/694504b1bfcf3b68b1067f1ba6f1e8db3b8aa043))
+* **cli:** add tariff commands ([#72](https://github.com/sanchpet/sweb/issues/72)) ([2e98e07](https://github.com/sanchpet/sweb/commit/2e98e07cd4795f1dbcee6300d2aa370d132ecf65))
+
 ## [0.16.3](https://github.com/sanchpet/sweb/compare/v0.16.2...v0.16.3) (2026-07-12)
 
 
