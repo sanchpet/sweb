@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.0](https://github.com/sanchpet/sweb/compare/v0.17.0...v0.18.0) (2026-07-14)
+
+
+### Features
+
+* surface the cloud tier — balancer, dbaas, monitoring, cloud ssl ([#77](https://github.com/sanchpet/sweb/issues/77)) ([982c2d0](https://github.com/sanchpet/sweb/commit/982c2d029202444fd3d1c91c35e30224269f412f))
+
 ## [0.17.0](https://github.com/sanchpet/sweb/compare/v0.16.3...v0.17.0) (2026-07-13)
 
 
