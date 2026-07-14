@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.1](https://github.com/sanchpet/sweb/compare/v0.18.0...v0.18.1) (2026-07-14)
+
+
+### Bug Fixes
+
+* bump sweb-go-sdk to v0.16.2 and tolerate isCreateEnable in balancer config ([#79](https://github.com/sanchpet/sweb/issues/79)) ([16c93a6](https://github.com/sanchpet/sweb/commit/16c93a617a8afac3dcdacca9dc1d551212ab5101))
+
 ## [0.18.0](https://github.com/sanchpet/sweb/compare/v0.17.0...v0.18.0) (2026-07-14)
 
 
