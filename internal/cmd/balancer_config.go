@@ -23,17 +23,24 @@ reports whether ordering a new balancer is currently available (isCreateEnable).
 		if err != nil {
 			return err
 		}
-		enabled, err := c.Balancer.IsCreateEnable(cmd.Context())
-		if err != nil {
-			return err
+		// isCreateEnable answers -32602 for some account types (doc-vs-reality: the spec
+		// documents it param-less, but the live API rejects the call). The catalog is still
+		// useful, so report availability as "unknown" rather than failing the whole command.
+		var createEnabled *bool
+		if enabled, err := c.Balancer.IsCreateEnable(cmd.Context()); err == nil {
+			createEnabled = &enabled
 		}
 		// Carry both the catalog and the availability flag on the json path.
 		data := struct {
-			CreateEnabled bool `json:"createEnabled"`
+			CreateEnabled *bool `json:"createEnabled"`
 			*balancerConfig
-		}{enabled, (*balancerConfig)(cfg)}
+		}{createEnabled, (*balancerConfig)(cfg)}
 		return render(cmd, data, func(w io.Writer) {
-			fmt.Fprintf(w, "CREATE AVAILABLE\t%t\n\n", enabled)
+			avail := "unknown"
+			if createEnabled != nil {
+				avail = fmt.Sprintf("%t", *createEnabled)
+			}
+			fmt.Fprintf(w, "CREATE AVAILABLE\t%s\n\n", avail)
 			fmt.Fprintln(w, "PLANS")
 			fmt.Fprintln(w, "ID\tTAG\tTITLE\tPRICE/mo")
 			for _, p := range cfg.Plans {
