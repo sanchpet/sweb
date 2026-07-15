@@ -101,6 +101,26 @@ Auth precedence: `--token` flag → `$SWEB_TOKEN` (both one-off, no refresh) →
 stored credentials (auto-refreshing). The token is cached and silently renewed
 from the stored login+password when it expires.
 
+### Exporting a DNS zone to Terraform
+
+`dns records -o json` is machine-readable so it can seed declarative config. The
+[`terraform-provider-sweb`](https://github.com/sanchpet/terraform-provider-sweb)
+ships a `tf-dns-import` helper that turns a zone dump into Terraform `import {}`
+blocks; `terraform plan -generate-config-out` then writes the HCL:
+
+```sh
+# domains live on the hosting account — mint that account's token
+export TF_VAR_sweb_token="$(sweb token --profile hosting)"
+
+sweb dns records example.com -o json | tf-dns-import example.com > imports.tf
+terraform plan -generate-config-out=generated.tf
+```
+
+See the provider's [Importing an existing DNS zone](https://github.com/sanchpet/terraform-provider-sweb/blob/main/docs/guides/import-existing-zone.md)
+guide for the full walkthrough. Use `--profile` to target the account that owns
+the domain: with the wrong account's credentials every read returns
+`-32500 Нет доступа к домену`.
+
 ## Shell completion
 
 The `.deb` / `.rpm` packages install completions automatically (bash, zsh, fish).

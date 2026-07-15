@@ -5,10 +5,11 @@ go 1.26
 require (
 	github.com/charmbracelet/fang v1.0.0
 	github.com/charmbracelet/huh v1.0.0
-	github.com/sanchpet/sweb-go-sdk v0.8.2
+	github.com/sanchpet/sweb-go-sdk v0.16.2
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
 	github.com/zalando/go-keyring v0.2.8
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

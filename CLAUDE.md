@@ -8,9 +8,13 @@ config, and output. Keep it that way — no HTTP/JSON-RPC here.
 ## Architecture
 
 - `main.go` → `internal/cmd.Execute()` (Cobra root wrapped by Charm **Fang**).
-- `internal/cmd/` — one file per command: `configure`, `vps`, `vps_list`,
-  `vps_create`, `vps_config`. `root.go` holds config wiring + the `client()` and
-  `render()` helpers.
+- `internal/cmd/` — **one file per command**, `<group>_<verb>.go` (e.g.
+  `vps_create.go`, `vps_change_plan.go`, `vps_power.go` = start/stop/reboot,
+  `vps_status.go`; `dns_*.go` = the domain DNS zone). Top level: `configure`,
+  `token`, `vps`, `dns`. `root.go` holds config
+  wiring + the shared `client()` and `render()` helpers; `resolve.go` and
+  `completion.go` hold cross-command helpers. A new command is a new file with an
+  `init()` that hangs it off its parent — no central registry to edit.
 - **Config / auth:** SpaceWeb tokens are short-lived with no refresh flow, so
   `configure` (Charm **huh** prompt) stores **login + password + token** in the OS
   keyring (`zalando/go-keyring`), falling back to a 0600 file — the fallback is
@@ -19,7 +23,39 @@ config, and output. Keep it that way — no HTTP/JSON-RPC here.
   re-auths transparently on expiry; the callback persists the new token via
   `saveToken`. Precedence: `--token` flag / `$SWEB_TOKEN` (one-off, no refresh) →
   stored credentials. `-o table|json` for output; non-auth config via Viper.
-- **Output:** `-o table|json`. Tables use stdlib `text/tabwriter` (no extra dep).
+- **Multi-account (profiles).** SpaceWeb serves both panels (cloud/VPS,
+  hosting/mail+domains) from one `api.sweb.ru`, so an account is just a credential
+  set — a **profile**. Credentials are keyring-namespaced by profile (`credKey`;
+  the `default` profile keeps legacy unprefixed keys — no migration). The **active
+  profile is resolved once** in the root `PersistentPreRunE` (`resolveActiveProfile`,
+  wired in `init` to dodge a `rootCmd`↔`topLevelGroup` cycle) and cached in
+  `activeProfile`, so `client()` stays parameterless across its 40+ call sites.
+  Precedence: `--profile` > `$SWEB_PROFILE` > **group binding** (a command's
+  top-level group, e.g. `dns`, bound to a profile via `sweb profile bind`) >
+  `current_profile` > `default`. Profile config (`current_profile`, `profiles`,
+  `bindings`) is read/written **case-preserving** via `profile.go`'s config store,
+  NOT viper (which lowercases keys and would mangle profile names).
+- **Output:** `-o table|json`. Every command renders through `render(cmd, data,
+  tableFn)` — `-o json` marshals `data`, otherwise `tableFn` writes a `tabwriter`
+  table. Keep both paths in sync.
+
+## Command patterns (match these)
+
+- **Address a VPS by name or id.** Commands that take a `<vps>` accept the name
+  (alias) *or* the billing id and pass the arg through `resolveVPS` (`resolve.go`);
+  the SDK only ever sees the billing id. An ambiguous name is an error.
+- **Async ops wait explicitly.** Long/async operations (resize, power) return as
+  soon as the API accepts, and take a flag to block on `WaitForIdle` — printing
+  each `current_action` phase. Follow the existing polarity per command
+  (`change-plan` waits by default with `--async`; `start/stop/reboot` are
+  fire-and-report with `--wait`).
+- **Destructive ops confirm.** Mutating/irreversible commands prompt via Charm
+  `huh` unless `--yes` (see `vps delete`).
+- **Shell completion.** Register `ValidArgsFunction` on new commands — reuse
+  `completeBillingIDs` / `completeCategories` (`completion.go`) so `<vps>` and id
+  args complete.
+- **Testing.** `cmd_test.go` asserts the command tree (add new subcommands there).
+  Never call mutating/billing API in tests — there is no live-API test path.
 
 ## Build & test (mise-first)
 
@@ -32,8 +68,9 @@ pre-commit install && pre-commit run -a
 ## Conventions
 
 - **English** for all repo artifacts (code, comments, docs, commits, PRs).
-- Small focused commits; `--signoff` on every commit + a `Co-Authored-By: Claude`
-  trailer (personal repo). Branch + PR; do not self-merge.
+- Small focused commits; `--signoff` on every commit + an
+  `Assisted-By: Claude <noreply@anthropic.com>` trailer (personal repo — the owner
+  authors, Claude assists; not `Co-Authored-By`). Branch + PR; do not self-merge.
 - **Conventional Commits + release-please (BLOCKING):** commit / PR-title format is
   `<type>[scope]: <desc>` (`feat`→minor, `fix`→patch, `!` or `BREAKING CHANGE`→major).
   PRs are squash-merged, so the **PR title is the release commit** — CI enforces its
