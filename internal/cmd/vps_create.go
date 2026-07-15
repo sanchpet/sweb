@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	sweb "github.com/sanchpet/sweb-go-sdk"
+	"github.com/sanchpet/sweb-go-sdk/vps"
 	"github.com/spf13/cobra"
 )
 
@@ -60,7 +61,7 @@ creating (in configurator mode it still resolves the plan id — a read-only cal
 				cpu, ram, disk, category, plan)
 		}
 
-		req := sweb.CreateVPSRequest{
+		req := vps.CreateRequest{
 			VPSPlanID:      plan,
 			DistributiveID: distr,
 			Datacenter:     dc,

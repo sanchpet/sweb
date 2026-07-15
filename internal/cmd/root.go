@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"runtime/debug"
 	"text/tabwriter"
 
@@ -25,6 +24,20 @@ var rootCmd = &cobra.Command{
 	Use:          "sweb",
 	Short:        "CLI for the SpaceWeb (sweb.ru) hosting API",
 	SilenceUsage: true,
+}
+
+// resolveActiveProfile resolves the credential profile for the running command.
+// It is wired as the root PersistentPreRunE (in init, to avoid a rootCmd↔
+// topLevelGroup initialization cycle) so it runs once — after cobra.OnInitialize
+// loads config — before any command's RunE, letting client() stay parameterless.
+func resolveActiveProfile(cmd *cobra.Command, _ []string) error {
+	flag, _ := cmd.Flags().GetString("profile")
+	var binding string
+	if group := topLevelGroup(cmd); group != "" {
+		binding = configGetString("bindings", group)
+	}
+	activeProfile = resolveProfileName(flag, os.Getenv("SWEB_PROFILE"), binding, configGetString("current_profile"))
+	return nil
 }
 
 // Execute runs the root command with Fang (styled help/errors/version).
@@ -48,16 +61,14 @@ func versionString() string {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	rootCmd.PersistentPreRunE = resolveActiveProfile
 	rootCmd.PersistentFlags().String("config", "", "config file (default ~/.config/sweb/config.yaml)")
 	rootCmd.PersistentFlags().StringP("output", "o", "table", "output format: table|json")
 	rootCmd.PersistentFlags().String("token", "", "API token (overrides keyring/config and $SWEB_TOKEN)")
+	rootCmd.PersistentFlags().String("profile", "", "credential profile to use (overrides $SWEB_PROFILE, group bindings, and the current profile)")
 	_ = viper.BindPFlag("output", rootCmd.PersistentFlags().Lookup("output"))
 	_ = rootCmd.RegisterFlagCompletionFunc("output", completeOutput)
-}
-
-func configDir() string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".config", "sweb")
+	_ = rootCmd.RegisterFlagCompletionFunc("profile", completeProfiles)
 }
 
 func initConfig() {
@@ -73,9 +84,9 @@ func initConfig() {
 	_ = viper.ReadInConfig() // missing config is fine
 }
 
-// client builds an authenticated SDK client from the resolved token.
+// client builds an authenticated SDK client for the active profile.
 func client() (*sweb.Client, error) {
-	// Explicit token (flag or env): used as-is, no auto-refresh.
+	// Explicit token (flag or env): used as-is, no auto-refresh, no profile.
 	if t, _ := rootCmd.PersistentFlags().GetString("token"); t != "" {
 		return sweb.New(sweb.WithToken(t)), nil
 	}
@@ -83,21 +94,35 @@ func client() (*sweb.Client, error) {
 		return sweb.New(sweb.WithToken(t)), nil
 	}
 
-	login, password, token := loadCredentials()
+	profile := activeProfile
+	if profile == "" {
+		profile = defaultProfile
+	}
+	login, password, token := loadCredentials(profile)
+
+	var opts []sweb.Option
+	if endpoint := configGetString("profiles", profile, "endpoint"); endpoint != "" {
+		opts = append(opts, sweb.WithBaseURL(endpoint))
+	}
 	switch {
 	case login != "" && password != "":
 		// Cached token + credentials → the SDK refreshes transparently on
-		// expiry and we persist the new token via the callback.
-		return sweb.New(
+		// expiry and we persist the new token for this profile via the callback.
+		opts = append(opts,
 			sweb.WithToken(token),
 			sweb.WithCredentials(login, password),
-			sweb.WithOnTokenRefresh(func(t string) { _ = saveToken(t) }),
-		), nil
+			sweb.WithOnTokenRefresh(func(t string) { _ = saveToken(profile, t) }),
+		)
 	case token != "":
-		return sweb.New(sweb.WithToken(token)), nil
+		opts = append(opts, sweb.WithToken(token))
 	default:
-		return nil, fmt.Errorf("no credentials: run `sweb configure` or set SWEB_TOKEN")
+		hint := ""
+		if profile != defaultProfile {
+			hint = " --profile " + profile
+		}
+		return nil, fmt.Errorf("no credentials for profile %q: run `sweb configure%s` or set SWEB_TOKEN", profile, hint)
 	}
+	return sweb.New(opts...), nil
 }
 
 // render prints data as JSON (-o json) or via the supplied table writer.

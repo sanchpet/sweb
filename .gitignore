@@ -12,3 +12,6 @@ coverage.out
 # Local env
 .env
 *.local
+
+# macOS
+.DS_Store
