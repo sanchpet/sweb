@@ -43,7 +43,7 @@ shown as "—", with the reason listed under the table.`,
 
 		p := domainPricing{Domain: domain}
 		note := func(what string, err error) {
-			p.Notes = append(p.Notes, fmt.Sprintf("%s — %s", what, apiReason(err)))
+			p.Notes = append(p.Notes, priceNote(what, err))
 		}
 		if v, err := c.Domains.RegistrationPrice(ctx, domain); err == nil {
 			p.RegistrationPrice = &v
@@ -95,6 +95,24 @@ func apiReason(err error) string {
 		return e.Message
 	}
 	return err.Error()
+}
+
+// domainNotOwnedRefusal is the raw message priceForRegistration and
+// priceForTrasfer return for a domain not on the account. It reads as an auth
+// failure and arrives in Russian in an otherwise English interface, which has
+// caused a real misdiagnosis (#81).
+const domainNotOwnedRefusal = "Нет доступа к домену"
+
+// priceNote formats one refused check's note line, translating the known
+// "domain not on your account" refusal into a clear English explanation. Any
+// other reason (a network error, a different API message) passes through
+// as-is via apiReason.
+func priceNote(what string, err error) string {
+	reason := apiReason(err)
+	if reason == domainNotOwnedRefusal {
+		reason = "domain is not on your account — SpaceWeb prices only domains you already own"
+	}
+	return fmt.Sprintf("%s — %s", what, reason)
 }
 
 func init() {
