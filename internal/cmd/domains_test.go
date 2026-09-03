@@ -35,6 +35,22 @@ func TestApiReason(t *testing.T) {
 	}
 }
 
+func TestPriceNote(t *testing.T) {
+	// The known "not on your account" refusal reads as an auth error and
+	// arrives in Russian; translate it into a plain English explanation (#81).
+	got := priceNote("registration price", &apierr.Error{Code: -32500, Message: "Нет доступа к домену"})
+	want := "registration price — domain is not on your account — SpaceWeb prices only domains you already own"
+	if got != want {
+		t.Errorf("priceNote(not owned) = %q, want %q", got, want)
+	}
+	// Any other API message passes through unchanged.
+	got = priceNote("register available", &apierr.Error{Code: -32500, Message: "Домен занят"})
+	want = "register available — Домен занят"
+	if got != want {
+		t.Errorf("priceNote(other) = %q, want %q", got, want)
+	}
+}
+
 func TestYesNo(t *testing.T) {
 	if yesNo(true) != "yes" || yesNo(false) != "no" {
 		t.Errorf("yesNo = %q/%q, want yes/no", yesNo(true), yesNo(false))
