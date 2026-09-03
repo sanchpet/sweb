@@ -9,8 +9,8 @@ import (
 )
 
 // mailMailboxCmd groups per-mailbox operations: list, lifecycle (create/delete),
-// password/comment, the antispam filter level, per-mailbox SPF, and purging old
-// mail.
+// password/comment, the antispam filter level, per-mailbox SPF, the mailbox
+// purpose, and purging old mail.
 var mailMailboxCmd = &cobra.Command{
 	Use:     "mailbox",
 	Aliases: []string{"mbox"},
@@ -176,6 +176,57 @@ var mailMailboxSpfCmd = &cobra.Command{
 	},
 }
 
+var mailMailboxPurposeCmd = &cobra.Command{
+	Use:   "purpose <domain> <mbox> <mail|forwarding|delivery>",
+	Short: "Set what a mailbox does with incoming mail",
+	Long: `Set what a mailbox does with incoming mail.
+
+  mail        keep messages in the mailbox
+  forwarding  send them on to the addresses of "hosting mail forwarding"
+  delivery    fan them out to the list of "hosting mail delivery"
+
+Forwarding takes two steps. "hosting mail forwarding add" only registers an
+address, and mail keeps landing in the mailbox until the purpose is switched to
+forwarding here. A mailing list works the same way.
+
+The API wants the current purpose along with the new one, so it is read from the
+mailbox list first. Pass --current to skip that read.`,
+	Args: cobra.ExactArgs(3),
+	ValidArgsFunction: func(_ *cobra.Command, args []string, _ string) ([]string, cobra.ShellCompDirective) {
+		if len(args) != 2 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		return mailPurposes, cobra.ShellCompDirectiveNoFileComp
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		c, err := client()
+		if err != nil {
+			return err
+		}
+		purpose, err := parsePurpose(args[2])
+		if err != nil {
+			return err
+		}
+		current, _ := cmd.Flags().GetString("current")
+		if current == "" {
+			if current, err = mailboxPurpose(cmd.Context(), c, args[0], args[1]); err != nil {
+				return err
+			}
+		} else if current, err = parsePurpose(current); err != nil {
+			return err
+		}
+		if current == purpose {
+			fmt.Fprintf(cmd.OutOrStdout(), "%s@%s is already %s\n", args[1], args[0], purpose)
+			return nil
+		}
+		if err := c.Mail.ChangeMailboxPurpose(cmd.Context(), args[0], args[1], purpose, current); err != nil {
+			return err
+		}
+		fmt.Fprintf(cmd.OutOrStdout(), "purpose of %s@%s changed from %s to %s\n", args[1], args[0], current, purpose)
+		return nil
+	},
+}
+
 var mailMailboxPurgeCmd = &cobra.Command{
 	Use:   "purge <domain> <mbox>",
 	Short: "Delete a mailbox's messages older than N days",
@@ -226,6 +277,7 @@ func init() {
 	mailMailboxCreateCmd.Flags().Bool("yes", false, "skip the confirmation prompt")
 	mailMailboxDeleteCmd.Flags().Bool("yes", false, "skip the confirmation prompt")
 	mailMailboxPasswordCmd.Flags().String("password", "", "new mailbox password (required)")
+	mailMailboxPurposeCmd.Flags().String("current", "", "the mailbox's current purpose (default: read from the mailbox list)")
 	mailMailboxPurgeCmd.Flags().Int("days", 30, "delete messages older than this many days")
 	mailMailboxPurgeCmd.Flags().Bool("yes", false, "skip the confirmation prompt")
 	mailMailboxRequisitesCmd.Flags().String("password", "", "the mailbox's password (required)")
@@ -233,7 +285,8 @@ func init() {
 	for _, sub := range []*cobra.Command{
 		mailMailboxListCmd, mailMailboxCreateCmd, mailMailboxDeleteCmd,
 		mailMailboxPasswordCmd, mailMailboxCommentCmd, mailMailboxAntispamCmd,
-		mailMailboxSpfCmd, mailMailboxPurgeCmd, mailMailboxRequisitesCmd,
+		mailMailboxSpfCmd, mailMailboxPurposeCmd, mailMailboxPurgeCmd,
+		mailMailboxRequisitesCmd,
 	} {
 		mailMailboxCmd.AddCommand(sub)
 	}
