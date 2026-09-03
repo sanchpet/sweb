@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.19.0](https://github.com/sanchpet/sweb/compare/v0.18.2...v0.19.0) (2026-09-03)
+
+
+### Features
+
+* **mail:** add mailbox purpose verb ([#91](https://github.com/sanchpet/sweb/issues/91)) ([a46d0a8](https://github.com/sanchpet/sweb/commit/a46d0a89095970eaf9ffa0fb9b1246ea01af9132))
+
 ## [0.18.2](https://github.com/sanchpet/sweb/compare/v0.18.1...v0.18.2) (2026-09-03)
 
 
