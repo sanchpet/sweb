@@ -45,7 +45,7 @@ var payBalanceCmd = &cobra.Command{
 			row("CREDIT OTHER", payMoney(b.CreditOtherBalance))
 			row("MULTIPLE", yesNo(b.MultipleBalanceEnabled))
 			for id, amt := range b.VATBalance {
-				row("VAT["+id+"]", amt)
+				row("VAT["+id+"]", payMoney(amt))
 			}
 		})
 	},
