@@ -12,6 +12,12 @@ import (
 var mailForwardingCmd = &cobra.Command{
 	Use:   "forwarding",
 	Short: "Manage a mailbox's forwarding addresses",
+	Long: `Manage a mailbox's forwarding addresses.
+
+Adding an address is only half of it. The mailbox forwards nothing until its
+purpose is set to forwarding:
+
+  sweb hosting mail mailbox purpose <domain> <mbox> forwarding`,
 }
 
 var mailForwardingListCmd = &cobra.Command{
@@ -31,8 +37,15 @@ var mailForwardingListCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		out := map[string]any{"forwarding": addrs, "deleteAfterForwarding": deleteAfter}
+		// The purpose decides whether any of these addresses are in use, so it
+		// is reported next to them.
+		purpose, err := mailboxPurpose(cmd.Context(), c, args[0], args[1])
+		if err != nil {
+			return err
+		}
+		out := map[string]any{"forwarding": addrs, "deleteAfterForwarding": deleteAfter, "purpose": purpose}
 		return render(cmd, out, func(w io.Writer) {
+			kv(w, "PURPOSE", emptyDash(purpose))
 			kv(w, "DELETE-AFTER-FORWARDING", onOff(deleteAfter))
 			fmt.Fprintln(w, "FORWARDING")
 			for _, a := range addrs {
@@ -45,7 +58,13 @@ var mailForwardingListCmd = &cobra.Command{
 var mailForwardingAddCmd = &cobra.Command{
 	Use:   "add <domain> <mbox> <email>",
 	Short: "Add a forwarding address to a mailbox",
-	Args:  cobra.ExactArgs(3),
+	Long: `Add a forwarding address to a mailbox.
+
+This only registers the address. Nothing is forwarded until the mailbox is put
+in forwarding mode:
+
+  sweb hosting mail mailbox purpose <domain> <mbox> forwarding`,
+	Args: cobra.ExactArgs(3),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		c, err := client()
 		if err != nil {

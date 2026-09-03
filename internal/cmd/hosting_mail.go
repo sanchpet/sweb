@@ -4,14 +4,16 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"strings"
 
+	sweb "github.com/sanchpet/sweb-go-sdk"
 	"github.com/sanchpet/sweb-go-sdk/vh/mail"
 	"github.com/spf13/cobra"
 )
 
 // mailCmd groups the shared-hosting email service (endpoint /vh/mail): the
-// account's mail domains and mailboxes, mailbox lifecycle, autoreply, forwarding
-// and delivery lists, the mail collector, per-mailbox white/black lists, and the
+// account's mail domains and mailboxes, mailbox lifecycle, autoreply, the mailbox
+// purpose, forwarding and delivery lists, the mail collector, white/black lists, and the
 // domain-level DKIM/SPF/sender-verify toggles. It hangs off `hosting`, so it
 // inherits that group's profile binding.
 var mailCmd = &cobra.Command{
@@ -40,6 +42,36 @@ func antispamLabel(v int) string {
 		return l
 	}
 	return fmt.Sprintf("%d", v)
+}
+
+// mailPurposes are the mailbox modes the API accepts, in the order the help
+// lists them.
+var mailPurposes = []string{mail.PurposeMail, mail.PurposeForwarding, mail.PurposeDelivery}
+
+// parsePurpose reads the <mail|forwarding|delivery> positional argument.
+func parsePurpose(arg string) (string, error) {
+	for _, p := range mailPurposes {
+		if arg == p {
+			return p, nil
+		}
+	}
+	return "", fmt.Errorf("purpose must be one of %s, got %q", strings.Join(mailPurposes, ", "), arg)
+}
+
+// mailboxPurpose reads a mailbox's current purpose out of its domain's mailbox
+// list. changeMailboxPurpose wants the current purpose alongside the new one,
+// and making the user type it is a trap.
+func mailboxPurpose(ctx context.Context, c *sweb.Client, domain, mbox string) (string, error) {
+	res, err := c.Mail.MailboxesList(ctx, domain, mbox, mail.ListOptions{})
+	if err != nil {
+		return "", err
+	}
+	for _, m := range res.List {
+		if m.Mbox == mbox {
+			return m.Purpose, nil
+		}
+	}
+	return "", fmt.Errorf("mailbox %s@%s not found on this account", mbox, domain)
 }
 
 // onOff renders a boolean as the "on"/"off" the mail panel uses.

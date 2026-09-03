@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"strings"
 	"testing"
+
+	"github.com/spf13/cobra"
 )
 
 func TestMailCommandTree(t *testing.T) {
@@ -27,7 +30,7 @@ func TestMailCommandTree(t *testing.T) {
 
 	// Each group's leaves.
 	for group, want := range map[string][]string{
-		"mailbox":    {"list", "create", "delete", "password", "comment", "antispam", "spf", "purge", "requisites"},
+		"mailbox":    {"list", "create", "delete", "password", "comment", "antispam", "spf", "purpose", "purge", "requisites"},
 		"forwarding": {"list", "add", "remove", "delete-after"},
 		"autoreply":  {"get", "set"},
 		"dkim":       {"enable", "disable"},
@@ -67,6 +70,36 @@ func TestAntispamValue(t *testing.T) {
 	// An unknown level renders as its raw number rather than losing it.
 	if got := antispamLabel(3); got != "3" {
 		t.Errorf("antispamLabel(3) = %q, want \"3\"", got)
+	}
+}
+
+func TestParsePurpose(t *testing.T) {
+	for _, arg := range []string{"mail", "forwarding", "delivery"} {
+		got, err := parsePurpose(arg)
+		if err != nil || got != arg {
+			t.Errorf("parsePurpose(%q) = %q, %v; want %q, nil", arg, got, err, arg)
+		}
+	}
+	// The error has to name the accepted values, it is the only place the user
+	// is told them when completion is off.
+	_, err := parsePurpose("forward")
+	if err == nil {
+		t.Fatal("parsePurpose(forward) should error")
+	}
+	for _, want := range []string{"mail", "forwarding", "delivery"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("parsePurpose error %q does not mention %q", err, want)
+		}
+	}
+}
+
+// The purpose prerequisite has to reach the user from --help, so the forwarding
+// commands point at the verb that switches the mailbox over.
+func TestForwardingHelpNamesThePurposeStep(t *testing.T) {
+	for _, c := range []*cobra.Command{mailForwardingCmd, mailForwardingAddCmd} {
+		if !strings.Contains(c.Long, "mailbox purpose") {
+			t.Errorf("%q help does not point at `mailbox purpose`: %q", c.Name(), c.Long)
+		}
 	}
 }
 
