@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.18.2](https://github.com/sanchpet/sweb/compare/v0.18.1...v0.18.2) (2026-09-03)
+
+
+### Bug Fixes
+
+* bump sweb-go-sdk to v0.17.0 so pay balance decodes again ([#90](https://github.com/sanchpet/sweb/issues/90)) ([fd09313](https://github.com/sanchpet/sweb/commit/fd09313afa0d1b9d45e832e9214cc10c1e4fc0f0)), closes [#87](https://github.com/sanchpet/sweb/issues/87)
+* **domains:** translate the unowned-domain price refusal ([#88](https://github.com/sanchpet/sweb/issues/88)) ([eedd539](https://github.com/sanchpet/sweb/commit/eedd53998caf36cc4f2f6836d075b9f044250ff5))
+
 ## [0.18.1](https://github.com/sanchpet/sweb/compare/v0.18.0...v0.18.1) (2026-07-14)
 
 
