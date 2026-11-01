@@ -68,9 +68,7 @@ pre-commit install && pre-commit run -a
 ## Conventions
 
 - **English** for all repo artifacts (code, comments, docs, commits, PRs).
-- Small focused commits; `--signoff` on every commit + an
-  `Assisted-By: Claude <noreply@anthropic.com>` trailer (personal repo — the owner
-  authors, Claude assists; not `Co-Authored-By`). Branch + PR.
+- Small focused commits; `--signoff` on every commit. Branch + PR.
 - **Conventional Commits + release-please (BLOCKING):** commit / PR-title format is
   `<type>[scope]: <desc>` (`feat`→minor, `fix`→patch, `!` or `BREAKING CHANGE`→major).
   PRs are squash-merged, so the **PR title is the release commit** — CI enforces its
