@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.19.1](https://github.com/sanchpet/sweb/compare/v0.19.0...v0.19.1) (2026-11-12)
+
+
+### Bug Fixes
+
+* **deps:** bump sweb-go-sdk to v0.18.1 ([#100](https://github.com/sanchpet/sweb/issues/100)) ([75cfc0a](https://github.com/sanchpet/sweb/commit/75cfc0a7c9c7c72c5c8a299182c89159508f2d4e))
+
 ## [0.19.0](https://github.com/sanchpet/sweb/compare/v0.18.2...v0.19.0) (2026-09-03)
 
 
